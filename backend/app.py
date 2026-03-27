@@ -41,7 +41,19 @@ from models import (
 
 # ===== Database Setup =====
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./madrasti.db")
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+
+# Render's DATABASE_URL starts with postgres://, but SQLAlchemy 2.0 requires postgresql://
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+is_sqlite = DATABASE_URL.startswith("sqlite")
+
+if is_sqlite:
+    engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+else:
+    # Use pool_pre_ping for better connection stability with cloud databases like Render Postgres
+    engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # Create tables
@@ -50,79 +62,85 @@ Base.metadata.create_all(bind=engine)
 
 def run_schema_migrations():
     """Small runtime migrations for SQLite local environments."""
+    if not is_sqlite:
+        return
+        
     with engine.begin() as conn:
-        user_columns = [row[1] for row in conn.execute(text("PRAGMA table_info(users)"))]
-        if "phone" not in user_columns:
-            conn.execute(text("ALTER TABLE users ADD COLUMN phone VARCHAR(50)"))
-        if "specialization" not in user_columns:
-            conn.execute(text("ALTER TABLE users ADD COLUMN specialization VARCHAR(255)"))
-        if "profile_image" not in user_columns:
-            conn.execute(text("ALTER TABLE users ADD COLUMN profile_image TEXT"))
-        if "role_label" not in user_columns:
-            conn.execute(text("ALTER TABLE users ADD COLUMN role_label VARCHAR(50)"))
-        if "public_id" not in user_columns:
-            conn.execute(text("ALTER TABLE users ADD COLUMN public_id VARCHAR(5)"))
-        conn.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_public_id_unique ON users(public_id)"))
+        try:
+            user_columns = [row[1] for row in conn.execute(text("PRAGMA table_info(users)"))]
+            if "phone" not in user_columns:
+                conn.execute(text("ALTER TABLE users ADD COLUMN phone VARCHAR(50)"))
+            if "specialization" not in user_columns:
+                conn.execute(text("ALTER TABLE users ADD COLUMN specialization VARCHAR(255)"))
+            if "profile_image" not in user_columns:
+                conn.execute(text("ALTER TABLE users ADD COLUMN profile_image TEXT"))
+            if "role_label" not in user_columns:
+                conn.execute(text("ALTER TABLE users ADD COLUMN role_label VARCHAR(50)"))
+            if "public_id" not in user_columns:
+                conn.execute(text("ALTER TABLE users ADD COLUMN public_id VARCHAR(5)"))
+            conn.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_public_id_unique ON users(public_id)"))
 
-        submission_columns = [row[1] for row in conn.execute(text("PRAGMA table_info(attendance_submissions)"))]
-        if "academic_year" not in submission_columns:
-            conn.execute(text(f"ALTER TABLE attendance_submissions ADD COLUMN academic_year INTEGER NOT NULL DEFAULT {datetime.utcnow().year}"))
-        if "term" not in submission_columns:
-            conn.execute(text("ALTER TABLE attendance_submissions ADD COLUMN term VARCHAR(20) NOT NULL DEFAULT 'first'"))
-        if "deleted_at" not in submission_columns:
-            conn.execute(text("ALTER TABLE attendance_submissions ADD COLUMN deleted_at DATETIME"))
-        if "purge_at" not in submission_columns:
-            conn.execute(text("ALTER TABLE attendance_submissions ADD COLUMN purge_at DATETIME"))
+            submission_columns = [row[1] for row in conn.execute(text("PRAGMA table_info(attendance_submissions)"))]
+            if "academic_year" not in submission_columns:
+                conn.execute(text(f"ALTER TABLE attendance_submissions ADD COLUMN academic_year INTEGER NOT NULL DEFAULT {datetime.utcnow().year}"))
+            if "term" not in submission_columns:
+                conn.execute(text("ALTER TABLE attendance_submissions ADD COLUMN term VARCHAR(20) NOT NULL DEFAULT 'first'"))
+            if "deleted_at" not in submission_columns:
+                conn.execute(text("ALTER TABLE attendance_submissions ADD COLUMN deleted_at DATETIME"))
+            if "purge_at" not in submission_columns:
+                conn.execute(text("ALTER TABLE attendance_submissions ADD COLUMN purge_at DATETIME"))
 
-        # Ensure new tables created in older runtime DBs
-        conn.execute(text(
-            "CREATE TABLE IF NOT EXISTS user_blocks ("
-            "id INTEGER PRIMARY KEY, "
-            "blocker_id INTEGER NOT NULL, "
-            "blocked_id INTEGER NOT NULL, "
-            "created_at DATETIME"
-            ")"
-        ))
-        conn.execute(text(
-            "CREATE TABLE IF NOT EXISTS chat_mutes ("
-            "id INTEGER PRIMARY KEY, "
-            "user_id INTEGER NOT NULL, "
-            "session_id INTEGER NOT NULL, "
-            "is_muted BOOLEAN DEFAULT 0, "
-            "created_at DATETIME, "
-            "updated_at DATETIME"
-            ")"
-        ))
-        conn.execute(text(
-            "CREATE TABLE IF NOT EXISTS call_sessions ("
-            "id INTEGER PRIMARY KEY, "
-            "caller_id INTEGER NOT NULL, "
-            "callee_id INTEGER NOT NULL, "
-            "status VARCHAR(30) DEFAULT 'ringing', "
-            "offer_sdp TEXT, "
-            "answer_sdp TEXT, "
-            "created_at DATETIME, "
-            "updated_at DATETIME, "
-            "ended_at DATETIME"
-            ")"
-        ))
-        conn.execute(text(
-            "CREATE TABLE IF NOT EXISTS call_ice_candidates ("
-            "id INTEGER PRIMARY KEY, "
-            "call_id INTEGER NOT NULL, "
-            "sender_id INTEGER NOT NULL, "
-            "recipient_id INTEGER NOT NULL, "
-            "candidate TEXT NOT NULL, "
-            "sdp_mid VARCHAR(255), "
-            "sdp_mline_index INTEGER, "
-            "created_at DATETIME"
-            ")"
-        ))
+            # Ensure new tables created in older runtime DBs
+            conn.execute(text(
+                "CREATE TABLE IF NOT EXISTS user_blocks ("
+                "id INTEGER PRIMARY KEY, "
+                "blocker_id INTEGER NOT NULL, "
+                "blocked_id INTEGER NOT NULL, "
+                "created_at DATETIME"
+                ")"
+            ))
+            conn.execute(text(
+                "CREATE TABLE IF NOT EXISTS chat_mutes ("
+                "id INTEGER PRIMARY KEY, "
+                "user_id INTEGER NOT NULL, "
+                "session_id INTEGER NOT NULL, "
+                "is_muted BOOLEAN DEFAULT 0, "
+                "created_at DATETIME, "
+                "updated_at DATETIME"
+                ")"
+            ))
+            conn.execute(text(
+                "CREATE TABLE IF NOT EXISTS call_sessions ("
+                "id INTEGER PRIMARY KEY, "
+                "caller_id INTEGER NOT NULL, "
+                "callee_id INTEGER NOT NULL, "
+                "status VARCHAR(30) DEFAULT 'ringing', "
+                "offer_sdp TEXT, "
+                "answer_sdp TEXT, "
+                "created_at DATETIME, "
+                "updated_at DATETIME, "
+                "ended_at DATETIME"
+                ")"
+            ))
+            conn.execute(text(
+                "CREATE TABLE IF NOT EXISTS call_ice_candidates ("
+                "id INTEGER PRIMARY KEY, "
+                "call_id INTEGER NOT NULL, "
+                "sender_id INTEGER NOT NULL, "
+                "recipient_id INTEGER NOT NULL, "
+                "candidate TEXT NOT NULL, "
+                "sdp_mid VARCHAR(255), "
+                "sdp_mline_index INTEGER, "
+                "created_at DATETIME"
+                ")"
+            ))
 
-        # Add last_seen column to users if missing
-        if "last_seen" not in user_columns:
-            conn.execute(text("ALTER TABLE users ADD COLUMN last_seen DATETIME"))
-
+            # Add last_seen column to users if missing
+            if "last_seen" not in user_columns:
+                conn.execute(text("ALTER TABLE users ADD COLUMN last_seen DATETIME"))
+        except Exception:
+            # If migrations fail for non-SQLite DB at runtime, we rely on metadata.create_all
+            pass
 
 run_schema_migrations()
 

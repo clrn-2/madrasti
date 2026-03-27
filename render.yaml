@@ -10,10 +10,12 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: DATABASE_URL
-        value: sqlite:////data/madrasti.db
+        fromDatabase:
+          name: madrasti-db
+          property: connectionString
       - key: CORS_ORIGIN
         value: "*"
-    disk:
-      name: madrasti-data
-      mountPath: /data
-      sizeGB: 1
+
+databases:
+  - name: madrasti-db
+    plan: free
