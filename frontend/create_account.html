@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -269,15 +269,20 @@
     <script>
         const API_CANDIDATES = (() => {
             const configured = String(localStorage.getItem('api_base_url') || '').trim();
+            const globalAppApi = (typeof API_BASE_URL !== 'undefined') ? API_BASE_URL : '';
             const sameHostBase = `${window.location.protocol}//${window.location.hostname}:8000`;
+            const currentOrigin = window.location.origin;
+
             return Array.from(new Set([
                 configured,
+                globalAppApi,
+                currentOrigin,
                 sameHostBase,
                 'http://127.0.0.1:8000',
                 'http://localhost:8000'
             ].filter(Boolean)));
         })();
-        let API = API_CANDIDATES[0] || 'http://127.0.0.1:8000';
+        let API = API_CANDIDATES[0] || (typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : 'http://127.0.0.1:8000');
         const form = document.getElementById('registerForm');
         const msg = document.getElementById('formMsg');
         const createBtn = document.getElementById('createBtn');
