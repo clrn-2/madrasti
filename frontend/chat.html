@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>دردشة — مدرستي</title>
+  <link rel="stylesheet" href="chat.css" />
+</head>
+<body class="chat-thread-page">
+
+<!-- Top App Bar -->
+<header class="chat-top-bar">
+  <button class="back-btn" id="backBtn" title="رجوع">&#8592;</button>
+  <div class="bar-avatar clickable" id="partnerAvatar" aria-hidden="true" title="فتح الملف الشخصي">؟</div>
+  <div class="bar-user-info">
+    <span class="bar-user-name" id="partnerName">...</span>
+    <span class="bar-user-status" id="partnerStatus">جاري التحميل...</span>
+  </div>
+  <div class="thread-menu-wrap">
+    <button class="thread-menu-btn" id="threadMenuBtn" title="إعدادات الدردشة">⋯</button>
+    <div class="thread-menu hidden" id="threadMenu">
+      <button type="button" id="threadMuteBtn">🔕 كتم الإشعارات</button>
+      <button type="button" id="threadDeleteBtn" class="destructive">🗑️ حذف الدردشة</button>
+      <button type="button" id="threadBlockBtn" class="destructive">🚫 حظر الشخص</button>
+    </div>
+  </div>
+</header>
+
+<!-- Messages scrollable area -->
+<div class="messages-area" id="messagesArea">
+  <div id="loadingMsg" class="loading-state"><div class="spinner"></div></div>
+  <div id="messagesContent"></div>
+</div>
+
+<!-- Edit mode bar (shown when editing a message) -->
+<div class="edit-bar hidden" id="editBar">
+  <span>✏️ تعديل الرسالة</span>
+  <button class="cancel-edit" id="cancelEditBtn" title="إلغاء التعديل">✕</button>
+</div>
+
+<!-- Input area -->
+<div class="chat-input-area">
+  <div class="attach-menu-wrap">
+    <button class="attach-btn" id="attachBtn" title="مرفقات">📎</button>
+    <div class="attach-menu hidden" id="attachMenu">
+      <button type="button" id="attachImageBtn">إرسال صورة</button>
+      <button type="button" id="attachFileBtn">إرسال ملف</button>
+      <button type="button" id="attachVoiceBtn">إرسال رسالة صوتية</button>
+    </div>
+  </div>
+  <textarea
+    id="msgInput"
+    rows="1"
+    placeholder="اكتب رسالة..."
+    maxlength="2000"
+  ></textarea>
+  <button class="send-btn" id="sendBtn" title="إرسال" disabled>&#10148;</button>
+  <input type="file" id="imageInput" accept="image/*" hidden>
+  <input type="file" id="fileInput" hidden>
+</div>
+
+<!-- Bubble context menu -->
+<div class="bubble-menu hidden" id="bubbleMenu">
+  <button id="menuEditBtn">✏️ تعديل</button>
+  <button id="menuDeleteBtn" class="destructive">🗑️ حذف</button>
+  <button id="menuCopyBtn">📋 نسخ</button>
+  <button id="menuCancelBtn">✕ إلغاء</button>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Confirm Modal -->
+<div class="confirm-modal hidden" id="confirmModal">
+  <div class="confirm-modal-card" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
+    <div class="confirm-modal-title" id="confirmModalTitle">تأكيد الحذف</div>
+    <div class="confirm-modal-text" id="confirmModalText">هل أنت متأكد؟</div>
+    <div class="confirm-modal-actions">
+      <button type="button" class="confirm-cancel-btn" id="confirmModalCancelBtn">إلغاء</button>
+      <button type="button" class="confirm-danger-btn" id="confirmModalActionBtn">تأكيد الحذف</button>
+    </div>
+  </div>
+</div>
+
+<!-- User Profile Modal -->
+<div class="profile-modal hidden" id="userProfileModal">
+  <div class="profile-modal-card" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle">
+    <div class="profile-modal-title" id="profileModalTitle">الملف الشخصي</div>
+    <div class="profile-modal-header">
+      <div class="profile-modal-avatar" id="viewProfileAvatar">👤</div>
+      <div class="profile-modal-meta">
+        <div class="profile-modal-name" id="viewProfileName">-</div>
+        <div class="profile-modal-role" id="viewProfileRole">-</div>
+      </div>
+    </div>
+    <div class="profile-modal-line" id="viewProfileId">🆔 ID: -</div>
+    <div class="profile-modal-line" id="viewProfileSchool">🏫 -</div>
+    <div class="profile-modal-line" id="viewProfilePhone">📞 -</div>
+    <div class="profile-modal-actions">
+      <button type="button" class="profile-secondary-btn" id="closeProfileModalBtn">إغلاق</button>
+      <button type="button" class="profile-primary-btn" id="addFriendFromProfileBtn">➕ إضافة صديق</button>
+      <button type="button" class="profile-primary-btn" id="messageFromProfileBtn">💬 دردشة</button>
+      <button type="button" class="profile-secondary-btn" id="blockFromProfileBtn">🚫 حظر</button>
+      <button type="button" class="profile-secondary-btn" id="removeFriendFromProfileBtn">🗑 إزالة صديق</button>
+    </div>
+  </div>
+</div>
+
+<script src="chat.js"></script>
+</body>
+</html>

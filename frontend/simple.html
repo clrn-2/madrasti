@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+  <script src="../config.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدرستي - نظام الحضور والغياب</title>
+    <meta http-equiv="refresh" content="0; url=dashboard.html">
+    <style>
+        html, body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a1929 0%, #1a237e 100%);
+            color: #fff;
+        }
+
+        .redirect-state {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 24px;
+        }
+
+        .redirect-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(100, 181, 246, 0.25);
+            border-radius: 16px;
+            padding: 24px;
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body>
+    <div class="redirect-state">
+        <div class="redirect-card">جاري تحويلك إلى صفحة الدخول...</div>
+    </div>
+    <script>
+        window.location.replace('dashboard.html');
+    </script>
+</body>
+</html>

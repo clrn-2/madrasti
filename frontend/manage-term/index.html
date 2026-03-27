@@ -1,0 +1,717 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+  <script src="../config.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدرستي - تحديث فصل دراسي</title>
+    <style>
+        /* Global hidden scrollbars with preserved scrolling */
+        html, body, * {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        html::-webkit-scrollbar,
+        body::-webkit-scrollbar,
+        *::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+            display: none;
+            background: transparent;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a1929 0%, #1a237e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            padding-bottom: 110px;
+        }
+
+        main {
+            width: 100%;
+            min-height: 100vh;
+            max-width: 1100px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        h1 {
+            color: #64b5f6;
+            font-size: 2.1em;
+            margin-bottom: 18px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(100, 181, 246, 0.2);
+            border-radius: 14px;
+            padding: 20px;
+        }
+
+        .card h2 {
+            color: #90caf9;
+            font-size: 1.2em;
+            margin-bottom: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #bbdefb;
+            font-weight: 600;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid rgba(100, 181, 246, 0.35);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+            font-size: 1em;
+        }
+
+        select {
+            color-scheme: dark;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+
+        select option {
+            background: #13294b;
+            color: #e3f2fd;
+        }
+
+        button {
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            padding: 12px 14px;
+            font-weight: 700;
+        }
+
+        .save-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #1976d2, #64b5f6);
+        }
+
+        .danger-btn {
+            background: rgba(244, 67, 54, 0.35);
+        }
+
+        .ok-btn {
+            background: rgba(76, 175, 80, 0.35);
+        }
+
+        .terms-list {
+            display: grid;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .term-item {
+            border: 1px solid rgba(100, 181, 246, 0.22);
+            border-radius: 10px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.04);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .term-item.active {
+            border-color: #64b5f6;
+            background: rgba(100, 181, 246, 0.13);
+        }
+
+        .term-meta {
+            color: #bbdefb;
+            font-size: 0.9em;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 16px;
+        }
+
+        .modal-box {
+            width: min(460px, 94vw);
+            background: #13294b;
+            border: 1px solid rgba(100, 181, 246, 0.35);
+            border-radius: 14px;
+            padding: 18px;
+        }
+
+        .modal-title {
+            color: #90caf9;
+            font-size: 1.2em;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .modal-text {
+            color: #c7e6ff;
+            margin-bottom: 14px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .modal-cancel-btn {
+            background: rgba(255, 255, 255, 0.14);
+        }
+
+        .message {
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+
+        .success {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid #4caf50;
+            color: #9be7a1;
+        }
+
+        .error {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid #f44336;
+            color: #ffb3ad;
+        }
+
+        .details-box {
+            margin-top: 12px;
+            border: 1px solid rgba(100, 181, 246, 0.2);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 14px;
+        }
+
+        .details-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .details-row {
+            color: #c7e6ff;
+            margin-bottom: 8px;
+        }
+
+        .submission-item {
+            margin-top: 8px;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(100,181,246,0.2);
+            background: rgba(255,255,255,0.03);
+        }
+
+        .submission-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .submission-title {
+            color: #e3f2fd;
+            font-weight: 700;
+        }
+
+        .submission-toggle {
+            width: auto;
+            min-width: 36px;
+            padding: 4px 8px;
+            border-radius: 8px;
+            background: rgba(100, 181, 246, 0.2);
+            border: 1px solid rgba(100, 181, 246, 0.35);
+            line-height: 1;
+            font-size: 0.95em;
+        }
+
+        .submission-details {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(100, 181, 246, 0.2);
+        }
+
+        .students-list {
+            margin-top: 8px;
+            display: grid;
+            gap: 6px;
+        }
+
+        .student-row {
+            padding: 8px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(100, 181, 246, 0.16);
+            color: #d8ecff;
+            font-size: 0.95em;
+        }
+
+        .back-wrap {
+            margin-top: 18px;
+            text-align: center;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            left: auto;
+            bottom: auto;
+            transform: none;
+            z-index: 1000;
+            background: linear-gradient(135deg, #ff9800, #ffb74d);
+            padding: 7px 12px;
+            font-size: 0.82em;
+        }
+
+        .toast-stack {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 10020;
+        }
+
+        .toast {
+            min-width: 280px;
+            max-width: 380px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.14);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.28);
+            backdrop-filter: blur(10px);
+            font-weight: 700;
+            animation: toast-in 0.22s ease;
+        }
+
+        .toast.success {
+            background: rgba(46, 125, 50, 0.92);
+            color: #f1fff3;
+            border-color: rgba(129, 199, 132, 0.45);
+        }
+
+        .toast.error {
+            background: rgba(183, 28, 28, 0.92);
+            color: #fff1f1;
+            border-color: rgba(239, 154, 154, 0.45);
+        }
+
+        @keyframes toast-in {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 860px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="toastStack" class="toast-stack"></div>
+    <main>
+        <h1>تحديث فصل دراسي</h1>
+
+        <section class="grid-2">
+            <div class="card">
+                <h2>إعداد السنة والفصل</h2>
+                <div class="form-group">
+                    <label>اختر السنة الدراسية</label>
+                    <input id="academicYearInput" type="text" placeholder="مثال: 2026 أو 2026-2027">
+                </div>
+                <div class="form-group">
+                    <label>اختر الفصل الدراسي</label>
+                    <select id="termSelect">
+                        <option value="first">الفصل الأول</option>
+                        <option value="second">الفصل الثاني</option>
+                    </select>
+                </div>
+                <button class="save-btn" onclick="saveTermSettings()">💾 حفظ السنة والفصل</button>
+                <div id="saveMsg"></div>
+            </div>
+
+            <div class="card">
+                <h2>إدارة سجلات الفصول</h2>
+                <div id="termsList" class="terms-list"></div>
+                <div class="actions">
+                    <button class="danger-btn" onclick="archiveSelectedTerm()">🗑 حذف سجلات الفصل</button>
+                    <button class="ok-btn" onclick="openRestorePage()">♻️ استرجاع سجلات الفصول</button>
+                </div>
+                <div id="termsMsg"></div>
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="details-header">
+                <h2>تفاصيل الفصل المحدد</h2>
+            </div>
+            <div id="termDetails" class="details-box">اختر فصلًا من القائمة لعرض الحضور والغياب والتواريخ والسجلات المرتبطة.</div>
+        </section>
+
+        <div class="back-wrap">
+            <button class="back-btn" onclick="goBack()">⬅ العودة إلى لوحة التحكم</button>
+        </div>
+    </main>
+
+    <div id="archiveModal" class="modal-backdrop">
+        <div class="modal-box">
+            <div class="modal-title">تأكيد حذف السجلات</div>
+            <div class="modal-text">هل أنت متأكد أنك تريد حذف سجلات هذا الفصل؟</div>
+            <div class="modal-actions">
+                <button type="button" class="danger-btn" onclick="confirmArchiveDelete()">تأكيد الحذف</button>
+                <button type="button" class="modal-cancel-btn" onclick="closeArchiveModal()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = (typeof API_BASE_URL !== 'undefined') ? API_BASE_URL : 'http://127.0.0.1:8000';
+        const token = localStorage.getItem('auth_token') || '';
+        const selectedSchoolId = Number(localStorage.getItem('selected_school_id') || '1');
+        let selectedTermKey = '';
+        let expandedSubmissionIds = {};
+        let archivePendingTerm = null;
+
+        function toggleSubmissionDetails(submissionId) {
+            const detailsEl = document.getElementById(`submission-details-${submissionId}`);
+            const toggleEl = document.getElementById(`submission-toggle-${submissionId}`);
+            if (!detailsEl || !toggleEl) return;
+
+            const nextExpanded = !expandedSubmissionIds[submissionId];
+            expandedSubmissionIds[submissionId] = nextExpanded;
+            detailsEl.style.display = nextExpanded ? 'block' : 'none';
+            toggleEl.textContent = nextExpanded ? '⬇' : '▶';
+        }
+
+        function parseAcademicYearStart(value) {
+            const text = String(value || '').trim();
+            const match = text.match(/\d{4}/);
+            return match ? Number(match[0]) : 0;
+        }
+
+        function termLabel(term) {
+            return term === 'second' ? 'الفصل الثاني' : 'الفصل الأول';
+        }
+
+        function showMsg(elId, text, type) {
+            const el = document.getElementById(elId);
+            if (!el) return;
+            clearTimeout(el._hideTimer);
+            if (!text) {
+                el.innerHTML = '';
+                return;
+            }
+            el.innerHTML = '';
+            showToast(text, type);
+        }
+
+        function showToast(text, type = 'success') {
+            const toastStack = document.getElementById('toastStack');
+            const value = String(text || '').trim();
+            if (!toastStack || !value) return;
+
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = value;
+            toastStack.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3500);
+        }
+
+        async function apiGet(url) {
+            const res = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.detail || 'فشل العملية');
+            return data;
+        }
+
+        async function loadCurrentSettings() {
+            const data = await apiGet(`${API}/schools/${selectedSchoolId}/term-settings`);
+            const yearInput = document.getElementById('academicYearInput');
+            const termSelect = document.getElementById('termSelect');
+            if (yearInput) yearInput.value = String(data.academic_year || new Date().getFullYear());
+            if (termSelect) termSelect.value = (data.term === 'second') ? 'second' : 'first';
+        }
+
+        async function saveTermSettings() {
+            const yearValue = parseAcademicYearStart(document.getElementById('academicYearInput')?.value || '');
+            const term = document.getElementById('termSelect')?.value || 'first';
+
+            if (!yearValue || yearValue < 2000 || yearValue > 2100) {
+                showMsg('saveMsg', 'الرجاء إدخال سنة دراسية صحيحة (2000 - 2100).', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API}/schools/${selectedSchoolId}/term-settings`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ academic_year: yearValue, term })
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(data.detail || 'فشل تحديث السنة والفصل');
+
+                showMsg('saveMsg', '✅ تم تحديث النظام بالكامل على السنة والفصل المحددين.', 'success');
+                selectedTermKey = `${yearValue}:${term}`;
+                await loadTermsList();
+                await loadTermDetails(yearValue, term);
+            } catch (err) {
+                showMsg('saveMsg', `✗ ${err.message}`, 'error');
+            }
+        }
+
+        async function loadTermsList() {
+            try {
+                const data = await apiGet(`${API}/admin/attendance/terms?school_id=${selectedSchoolId}`);
+                const allTerms = Array.isArray(data.terms) ? data.terms : [];
+                const terms = allTerms.filter(item => Number(item.active_submissions || 0) > 0);
+                const list = document.getElementById('termsList');
+
+                if (!terms.length) {
+                    list.innerHTML = '<div class="details-row">لا توجد سجلات نشطة حاليًا. يمكنك استرجاع السجلات من صفحة الاسترجاع.</div>';
+                    selectedTermKey = '';
+                    const box = document.getElementById('termDetails');
+                    if (box) {
+                        box.innerHTML = 'اختر فصلًا من القائمة لعرض الحضور والغياب والتواريخ والسجلات المرتبطة.';
+                    }
+                    return;
+                }
+
+                list.innerHTML = terms.map(item => {
+                    const key = `${item.academic_year}:${item.term}`;
+                    const checked = selectedTermKey === key ? 'checked' : '';
+                    const activeClass = selectedTermKey === key ? 'active' : '';
+                    return `
+                        <div class="term-item ${activeClass}" onclick="selectTerm('${item.academic_year}','${item.term}')">
+                            <div>
+                                <div><strong>سنة ${item.academic_year} – ${termLabel(item.term)}</strong></div>
+                                <div class="term-meta">عدد السجلات النشطة: ${item.active_submissions}</div>
+                            </div>
+                            <input type="checkbox" ${checked} onclick="event.stopPropagation(); selectTerm('${item.academic_year}','${item.term}')">
+                        </div>
+                    `;
+                }).join('');
+
+                if (!selectedTermKey && terms[0]) {
+                    selectTerm(String(terms[0].academic_year), String(terms[0].term));
+                    return;
+                }
+
+                if (selectedTermKey) {
+                    const selectedExists = terms.some(item => `${item.academic_year}:${item.term}` === selectedTermKey);
+                    if (selectedExists) {
+                        const [year, term] = selectedTermKey.split(':');
+                        if (year && term) {
+                            await loadTermDetails(Number(year), term);
+                        }
+                    }
+                }
+            } catch (err) {
+                showMsg('termsMsg', `✗ ${err.message}`, 'error');
+            }
+        }
+
+        async function selectTerm(year, term) {
+            selectedTermKey = `${year}:${term}`;
+            await loadTermsList();
+            await loadTermDetails(Number(year), term);
+        }
+
+        async function loadTermDetails(year, term) {
+            const box = document.getElementById('termDetails');
+            try {
+                const data = await apiGet(`${API}/admin/attendance/terms/${year}/${encodeURIComponent(term)}/details?school_id=${selectedSchoolId}&include_archived=false`);
+                const summary = data.summary || {};
+                const submissions = Array.isArray(data.submissions) ? data.submissions : [];
+                expandedSubmissionIds = {};
+
+                const submissionsHtml = submissions.length
+                    ? submissions.map(sub => `
+                        <div class="submission-item">
+                            <div class="submission-header">
+                                <div class="submission-title">${sub.date} – ${sub.class_name}</div>
+                                <button type="button" id="submission-toggle-${sub.submission_id}" class="submission-toggle" onclick="toggleSubmissionDetails(${sub.submission_id})">▶</button>
+                            </div>
+                            <div id="submission-details-${sub.submission_id}" class="submission-details" style="display:none;">
+                                <div class="details-row">المعلم: ${sub.teacher_name}</div>
+                                <div class="details-row">✅ الحاضرون: ${sub.present_count} | ❌ الغائبون: ${sub.absent_count}</div>
+                                <div class="details-row">الحالة: ${sub.is_archived ? 'مؤرشف' : 'نشط'}</div>
+                                <div class="students-list">
+                                    ${Array.isArray(sub.records) && sub.records.length
+                                        ? sub.records.map(record => `<div class="student-row">${record.student_name} — ${record.status === 'present' ? 'حاضر' : 'غائب'}</div>`).join('')
+                                        : '<div class="details-row">لا توجد تفاصيل طلاب لهذا السجل.</div>'}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')
+                    : '<div class="details-row">لا توجد سجلات لهذا الفصل.</div>';
+
+                box.innerHTML = `
+                    <div class="details-row"><strong>السنة:</strong> ${year}</div>
+                    <div class="details-row"><strong>الفصل:</strong> ${termLabel(term)}</div>
+                    <div class="details-row"><strong>عدد السجلات:</strong> ${summary.submissions_count || 0}</div>
+                    <div class="details-row"><strong>عدد التواريخ:</strong> ${summary.dates_count || 0}</div>
+                    <div class="details-row"><strong>إجمالي الحضور:</strong> ${summary.present_total || 0} | <strong>إجمالي الغياب:</strong> ${summary.absent_total || 0}</div>
+                    ${submissionsHtml}
+                `;
+            } catch (err) {
+                box.innerHTML = `<div class="message error">✗ ${err.message}</div>`;
+            }
+        }
+
+        function getSelectedTermData() {
+            if (!selectedTermKey) return null;
+            const [year, term] = selectedTermKey.split(':');
+            return { year: Number(year), term };
+        }
+
+        async function archiveSelectedTerm() {
+            const selected = getSelectedTermData();
+            if (!selected) {
+                showMsg('termsMsg', 'اختر فصلًا أولًا.', 'error');
+                return;
+            }
+
+            archivePendingTerm = selected;
+            openArchiveModal();
+        }
+
+        function openArchiveModal() {
+            const modal = document.getElementById('archiveModal');
+            if (modal) modal.style.display = 'flex';
+        }
+
+        function closeArchiveModal() {
+            const modal = document.getElementById('archiveModal');
+            if (modal) modal.style.display = 'none';
+            archivePendingTerm = null;
+        }
+
+        async function confirmArchiveDelete() {
+            const selected = archivePendingTerm;
+            if (!selected) {
+                closeArchiveModal();
+                return;
+            }
+
+            closeArchiveModal();
+
+            try {
+                const res = await fetch(`${API}/admin/attendance/archive-term`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ school_id: selectedSchoolId, academic_year: selected.year, term: selected.term })
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(data.detail || 'فشل حذف سجلات الفصل');
+
+                showMsg('termsMsg', '✅ تم نقل السجلات إلى قسم استرجاع سجلات الفصول لمدة 3 أيام قبل الحذف النهائي.', 'success');
+                await loadTermsList();
+            } catch (err) {
+                showMsg('termsMsg', `✗ ${err.message}`, 'error');
+            }
+        }
+
+        function openRestorePage() {
+            window.location.href = '../restore-terms/';
+        }
+
+        function goBack() {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({ type: 'madrasti:navigate', section: 'home' }, window.location.origin);
+                return;
+            }
+            window.location.href = '../dashboard.html';
+        }
+
+        async function init() {
+            if (!token) {
+                showMsg('saveMsg', 'يرجى تسجيل الدخول أولًا.', 'error');
+                return;
+            }
+
+            try {
+                await loadCurrentSettings();
+                const yearValue = parseAcademicYearStart(document.getElementById('academicYearInput')?.value || '');
+                const termValue = document.getElementById('termSelect')?.value || 'first';
+                if (yearValue) {
+                    selectedTermKey = `${yearValue}:${termValue}`;
+                }
+                await loadTermsList();
+            } catch (err) {
+                showMsg('saveMsg', `✗ ${err.message}`, 'error');
+            }
+        }
+
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
+
+

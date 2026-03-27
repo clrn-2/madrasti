@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+  <script src="../config.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدرستي - المحظورون</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a1929 0%, #1a237e 100%);
+            color: #fff;
+            padding: 20px;
+        }
+        .container {
+            max-width: 860px;
+            margin: 0 auto;
+            background: rgba(19, 41, 75, 0.96);
+            border-radius: 18px;
+            padding: 26px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+        h1 { font-size: 1.6em; color: #e3f2fd; }
+        .back-btn, .unblock-btn, .modal-btn {
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            border-radius: 12px;
+            padding: 11px 16px;
+            font-weight: 700;
+        }
+        .back-btn { background: linear-gradient(135deg, #455a64, #607d8b); }
+        .list {
+            display: grid;
+            gap: 12px;
+        }
+        .empty-state, .blocked-item {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(100,181,246,0.18);
+            border-radius: 14px;
+            padding: 16px;
+        }
+        .empty-state {
+            text-align: center;
+            color: #bbdefb;
+            padding: 34px 18px;
+        }
+        .blocked-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+        }
+        .blocked-main {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+        .avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(100,181,246,0.2);
+            border: 1px solid rgba(100,181,246,0.35);
+            flex-shrink: 0;
+            font-size: 1.4em;
+        }
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .meta {
+            min-width: 0;
+        }
+        .name {
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+        .sub, .blocked-at {
+            color: #bbdefb;
+            font-size: 0.9em;
+        }
+        .blocked-at {
+            color: #90caf9;
+            margin-top: 4px;
+        }
+        .unblock-btn {
+            background: linear-gradient(135deg, #2e7d32, #43a047);
+            min-width: 138px;
+            flex-shrink: 0;
+        }
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            min-width: 260px;
+            max-width: 360px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            color: #fff;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-6px);
+            transition: opacity .22s ease, transform .22s ease;
+            z-index: 3000;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.info { background: rgba(21,101,192,0.94); }
+        .toast.success { background: rgba(46,125,50,0.94); }
+        .toast.error { background: rgba(183,28,28,0.94); }
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            z-index: 2500;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-card {
+            width: min(420px, 96vw);
+            background: rgba(18, 40, 74, 0.98);
+            border: 1px solid rgba(100,181,246,0.35);
+            border-radius: 16px;
+            padding: 18px;
+        }
+        .modal-title {
+            color: #e3f2fd;
+            font-size: 1.15em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .modal-text {
+            color: #d8ebff;
+            line-height: 1.8;
+            margin-bottom: 14px;
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .modal-btn.cancel { background: rgba(255,255,255,0.14); }
+        .modal-btn.approve { background: linear-gradient(135deg, #2e7d32, #43a047); }
+        @media (max-width: 640px) {
+            .blocked-item {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .unblock-btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-btn" type="button" onclick="goBack()">← الرجوع</button>
+            <h1>🚫 المحظورون</h1>
+        </div>
+        <div id="blockedList" class="list"></div>
+    </div>
+
+    <div id="toast" class="toast info"></div>
+
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-title">تأكيد الإجراء</div>
+            <div id="confirmText" class="modal-text">هل تريد المتابعة؟</div>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn cancel" onclick="closeConfirm(false)">إلغاء</button>
+                <button type="button" class="modal-btn approve" id="confirmApproveBtn" onclick="closeConfirm(true)">تأكيد</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = (localStorage.getItem('api_base_url') || 'http://127.0.0.1:8000').replace(/\/$/, '');
+        const token = localStorage.getItem('auth_token') || '';
+        let confirmResolver = null;
+
+        if (!token) {
+            window.location.replace('index.html');
+        }
+
+        function goBack() {
+            if (document.referrer && document.referrer.includes('/frontend/')) {
+                history.back();
+                return;
+            }
+            window.location.href = 'dashboard.html';
+        }
+
+        function apiFetch(path, opts = {}) {
+            return fetch(API + path, {
+                ...opts,
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json',
+                    ...(opts.headers || {}),
+                }
+            });
+        }
+
+        function showToast(message, type = 'info', duration = 3000) {
+            const toast = document.getElementById('toast');
+            if (!toast) return;
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            clearTimeout(toast._timer);
+            toast._timer = setTimeout(() => toast.classList.remove('show'), duration);
+        }
+
+        function openConfirm(message, approveText = 'تأكيد') {
+            const modal = document.getElementById('confirmModal');
+            const text = document.getElementById('confirmText');
+            const approve = document.getElementById('confirmApproveBtn');
+            if (!modal || !text || !approve) return Promise.resolve(false);
+            text.textContent = message || 'هل أنت متأكد؟';
+            approve.textContent = approveText;
+            modal.classList.add('open');
+            return new Promise((resolve) => {
+                confirmResolver = resolve;
+            });
+        }
+
+        function closeConfirm(confirmed) {
+            const modal = document.getElementById('confirmModal');
+            if (modal) modal.classList.remove('open');
+            if (confirmResolver) {
+                const resolve = confirmResolver;
+                confirmResolver = null;
+                resolve(Boolean(confirmed));
+            }
+        }
+
+        function escapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function formatRole(role, specialization) {
+            const normalizedRole = String(role || '').trim().toLowerCase();
+            const roleLabel = normalizedRole === 'admin' ? 'إدارة المدرسة'
+                : normalizedRole === 'principal' ? 'مدير المدرسة'
+                : normalizedRole === 'super_admin' ? 'مسؤول النظام'
+                : normalizedRole === 'guardian' ? 'ولي أمر'
+                : 'معلم';
+            const cleanSpecialization = String(specialization || '').trim();
+            return cleanSpecialization ? `${roleLabel} - ${cleanSpecialization}` : roleLabel;
+        }
+
+        function formatBlockedAt(value) {
+            if (!value) return '';
+            const date = new Date(value);
+            return `تاريخ الحظر: ${date.toLocaleDateString('en-GB')} ${date.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}`;
+        }
+
+        function avatarMarkup(name, image) {
+            if (image) {
+                return `<img src="${escapeHtml(image)}" alt="${escapeHtml(name || 'مستخدم')}">`;
+            }
+            return escapeHtml((String(name || '؟').trim().charAt(0) || '؟'));
+        }
+
+        async function unblockUser(userId) {
+            const approved = await openConfirm('هل تريد إلغاء حظر هذا المستخدم؟', 'إلغاء الحظر');
+            if (!approved) return;
+            try {
+                const resp = await apiFetch(`/users/${userId}/block`, { method: 'DELETE' });
+                const data = await resp.json().catch(() => ({}));
+                if (!resp.ok) throw new Error(data.detail || 'تعذر إلغاء الحظر');
+                await loadBlockedUsers();
+                showToast('تم إلغاء حظر المستخدم بنجاح', 'success');
+            } catch (error) {
+                showToast(error.message || 'فشل إلغاء الحظر', 'error');
+            }
+        }
+
+        async function loadBlockedUsers() {
+            const container = document.getElementById('blockedList');
+            if (!container) return;
+            container.innerHTML = '<div class="empty-state">جاري تحميل قائمة المحظورين...</div>';
+            try {
+                const resp = await apiFetch('/users/blocked');
+                const data = await resp.json().catch(() => ([]));
+                if (!resp.ok) throw new Error(data.detail || 'تعذر تحميل قائمة المحظورين');
+                const users = Array.isArray(data) ? data : [];
+                if (!users.length) {
+                    container.innerHTML = '<div class="empty-state">لا يوجد مستخدمون محظورون حاليًا.</div>';
+                    return;
+                }
+                container.innerHTML = users.map((user) => `
+                    <div class="blocked-item">
+                        <div class="blocked-main">
+                            <div class="avatar">${avatarMarkup(user.full_name, user.profile_image)}</div>
+                            <div class="meta">
+                                <div class="name">${escapeHtml(user.full_name || 'مستخدم')}</div>
+                                <div class="sub">${escapeHtml(formatRole(user.role_label, user.specialization))}</div>
+                                <div class="sub">${escapeHtml(user.public_id ? `ID: ${user.public_id}` : 'ID: -')}</div>
+                                <div class="blocked-at">${escapeHtml(formatBlockedAt(user.blocked_at))}</div>
+                            </div>
+                        </div>
+                        <button type="button" class="unblock-btn" onclick="unblockUser(${Number(user.user_id)})">إلغاء الحظر</button>
+                    </div>
+                `).join('');
+            } catch (error) {
+                container.innerHTML = `<div class="empty-state">${escapeHtml(error.message || 'حدث خطأ أثناء تحميل القائمة')}</div>`;
+            }
+        }
+
+        document.getElementById('confirmModal').addEventListener('click', (event) => {
+            if (event.target.id === 'confirmModal') closeConfirm(false);
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') closeConfirm(false);
+        });
+
+        loadBlockedUsers();
+    </script>
+</body>
+</html>

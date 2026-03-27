@@ -1,0 +1,473 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+  <script src="../config.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدرستي - ملف التعريف</title>
+    <style>
+        /* Global hidden scrollbars with preserved scrolling */
+        html, body, * {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        html::-webkit-scrollbar,
+        body::-webkit-scrollbar,
+        *::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+            display: none;
+            background: transparent;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a1929 0%, #1a237e 100%);
+            color: #fff;
+            padding: 20px;
+        }
+        .container {
+            max-width: 760px;
+            margin: 0 auto;
+            background: #13294b;
+            border-radius: 18px;
+            padding: 26px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+            gap: 10px;
+        }
+        h1 { font-size: 1.7em; color: #e3f2fd; }
+        .back-btn {
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            border-radius: 10px;
+            padding: 10px 16px;
+            background: linear-gradient(135deg, #455a64, #607d8b);
+        }
+        .profile-avatar {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            overflow: hidden;
+            border: 3px solid rgba(100, 181, 246, 0.55);
+            background: rgba(100, 181, 246, 0.18);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+        }
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .photo-action-wrap {
+            display: flex;
+            justify-content: center;
+            margin-top: -8px;
+            margin-bottom: 12px;
+        }
+        .grid {
+            display: grid;
+            gap: 14px;
+        }
+        .field {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 12px;
+        }
+        .label {
+            font-size: 0.9em;
+            color: #bbdefb;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .value {
+            min-height: 24px;
+            color: #fff;
+            font-weight: 600;
+        }
+        input.value-input {
+            width: 100%;
+            border: 1px solid rgba(100, 181, 246, 0.35);
+            border-radius: 10px;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            font-weight: 600;
+            font-size: 1em;
+            outline: none;
+        }
+        .actions {
+            margin-top: 16px;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .save-btn {
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            border-radius: 10px;
+            padding: 11px 22px;
+            background: linear-gradient(135deg, #1976d2, #42a5f5);
+            font-weight: 700;
+            min-width: 160px;
+        }
+        .msg {
+            margin-top: 15px;
+            font-size: 0.92em;
+            color: #ffcdd2;
+            text-align: center;
+        }
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 8, 20, 0.72);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            z-index: 9999;
+        }
+        .modal-backdrop.show {
+            display: flex;
+        }
+        .modal-card {
+            width: 100%;
+            max-width: 430px;
+            background: linear-gradient(180deg, #122744 0%, #0d1b2f 100%);
+            border: 1px solid rgba(66, 165, 245, 0.5);
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 0 16px rgba(66, 165, 245, 0.35), 0 20px 40px rgba(0, 0, 0, 0.45);
+        }
+        .modal-title {
+            color: #e3f2fd;
+            font-size: 1.25em;
+            margin-bottom: 10px;
+        }
+        .modal-text {
+            color: #cfe7ff;
+            margin-bottom: 16px;
+            line-height: 1.7;
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        .modal-btn {
+            border: none;
+            border-radius: 10px;
+            padding: 10px 18px;
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+            min-width: 120px;
+        }
+        .modal-btn-cancel {
+            background: linear-gradient(135deg, #1976d2, #42a5f5);
+        }
+        .modal-btn-confirm {
+            background: linear-gradient(135deg, #c62828, #ef5350);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-btn" onclick="goDashboard()">← الرجوع للوحة الرئيسية</button>
+            <h1>ملف التعريف</h1>
+        </div>
+
+        <div class="profile-avatar" id="profileAvatar">👤</div>
+        <div class="photo-action-wrap">
+            <button class="save-btn" type="button" onclick="triggerPhotoSelect()">تغيير الصورة</button>
+            <input id="profilePhotoInput" type="file" accept=".jpg,.jpeg,.png,image/jpeg,image/png" style="display:none;" onchange="onProfilePhotoSelected(event)">
+        </div>
+
+        <div class="grid">
+            <div class="field">
+                <span class="label">رقم المعرف (ID)</span>
+                <div id="profileId" class="value">-</div>
+            </div>
+            <div class="field">
+                <span class="label">الاسم</span>
+                <input id="profileName" class="value-input" type="text" placeholder="أدخل الاسم">
+            </div>
+            <div class="field">
+                <span class="label">اسم المدرسة</span>
+                <div id="profileSchool" class="value">-</div>
+            </div>
+            <div class="field">
+                <span class="label">التخصص</span>
+                <input id="profileSpecialization" class="value-input" type="text" placeholder="أدخل التخصص">
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="save-btn" onclick="saveProfileChanges()">حفظ التعديلات</button>
+            <button class="save-btn" onclick="openLogoutModal()">تسجيل خروج</button>
+        </div>
+
+        <div class="msg" id="pageMsg"></div>
+    </div>
+
+    <div id="logoutModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="logoutModalTitle">
+        <div class="modal-card">
+            <h2 id="logoutModalTitle" class="modal-title">تأكيد تسجيل الخروج</h2>
+            <p class="modal-text">هل تريد بالفعل تسجيل الخروج من هذا الحساب؟</p>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeLogoutModal()">لا (إلغاء)</button>
+                <button type="button" class="modal-btn modal-btn-confirm" onclick="confirmLogout()">نعم (تسجيل خروج)</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = (typeof API_BASE_URL !== 'undefined') ? API_BASE_URL : 'http://127.0.0.1:8000';
+
+        function goDashboard() {
+            window.location.href = 'dashboard.html';
+        }
+
+        function getUserFromStorage() {
+            try {
+                return JSON.parse(localStorage.getItem('auth_user') || '{}');
+            } catch (_) {
+                return {};
+            }
+        }
+
+        function requireAuth() {
+            const token = localStorage.getItem('auth_token') || '';
+            if (!token) {
+                window.location.replace('dashboard.html?force_login=1');
+                return false;
+            }
+            return true;
+        }
+
+        function getProfilePhoto(userId) {
+            const specific = localStorage.getItem(`profile_photo_${userId || 'default'}`);
+            if (specific) return specific;
+            const user = getUserFromStorage();
+            if (user && user.profile_image) return user.profile_image;
+            return localStorage.getItem('profile_photo_default') || '';
+        }
+
+        function canViewSchoolCode(user) {
+            const roleLabel = String(user?.role_label || '').trim().toLowerCase();
+            return roleLabel === 'principal' || roleLabel === 'super_admin' || roleLabel === 'system_admin';
+        }
+
+        async function resolveSchoolCode(user) {
+            const token = localStorage.getItem('auth_token') || '';
+            const selectedSchoolId = String(localStorage.getItem('selected_school_id') || '').trim();
+            const schoolName = String(user?.school_name || localStorage.getItem('selected_school_name') || '').trim();
+
+            try {
+                const res = await fetch(`${API}/schools`, {
+                    headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+                });
+                if (!res.ok) return '';
+                const data = await res.json().catch(() => ([]));
+                const schools = Array.isArray(data) ? data : (data.schools || []);
+                if (selectedSchoolId) {
+                    const byId = schools.find(s => String(s.id) === selectedSchoolId);
+                    if (byId?.code) return String(byId.code);
+                }
+                if (schoolName) {
+                    const byName = schools.find(s => String(s.name || '').trim() === schoolName);
+                    if (byName?.code) return String(byName.code);
+                }
+                return '';
+            } catch (_) {
+                return '';
+            }
+        }
+
+        function setMessage(message, ok = false) {
+            const msgEl = document.getElementById('pageMsg');
+            if (!msgEl) return;
+            msgEl.textContent = message;
+            msgEl.style.color = ok ? '#81c784' : '#ffcdd2';
+        }
+
+        function triggerPhotoSelect() {
+            const input = document.getElementById('profilePhotoInput');
+            if (input) input.click();
+        }
+
+        async function onProfilePhotoSelected(event) {
+            const file = event?.target?.files?.[0];
+            if (!file) return;
+
+            const isAllowed = ['image/jpeg', 'image/png', 'image/jpg'].includes(String(file.type || '').toLowerCase());
+            if (!isAllowed) {
+                setMessage('نوع الصورة غير مدعوم. يرجى اختيار JPG أو PNG.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = async () => {
+                const dataUrl = String(reader.result || '');
+                if (!dataUrl.startsWith('data:image/')) {
+                    setMessage('تعذر قراءة الصورة المحددة.');
+                    return;
+                }
+
+                const token = localStorage.getItem('auth_token') || '';
+                if (!token) {
+                    window.location.replace('dashboard.html?force_login=1');
+                    return;
+                }
+
+                try {
+                    const res = await fetch(`${API}/auth/profile`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ profile_image: dataUrl })
+                    });
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok) throw new Error(data.detail || 'فشل حفظ الصورة');
+
+                    const user = getUserFromStorage();
+                    user.profile_image = data.profile_image || dataUrl;
+                    localStorage.setItem('auth_user', JSON.stringify(user));
+                    localStorage.setItem(`profile_photo_${user.id || 'default'}`, user.profile_image);
+
+                    const avatarEl = document.getElementById('profileAvatar');
+                    if (avatarEl) avatarEl.innerHTML = `<img src="${user.profile_image}" alt="الصورة الشخصية">`;
+                    setMessage('تم تحديث الصورة الشخصية بنجاح.', true);
+                } catch (err) {
+                    setMessage(err.message || 'حدث خطأ أثناء تحديث الصورة.');
+                } finally {
+                    const input = document.getElementById('profilePhotoInput');
+                    if (input) input.value = '';
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function openLogoutModal() {
+            const modal = document.getElementById('logoutModal');
+            if (modal) modal.classList.add('show');
+        }
+
+        function closeLogoutModal() {
+            const modal = document.getElementById('logoutModal');
+            if (modal) modal.classList.remove('show');
+        }
+
+        async function confirmLogout() {
+            closeLogoutModal();
+            const token = localStorage.getItem('auth_token') || '';
+            try {
+                if (token) {
+                    await fetch(`${API}/auth/logout`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                }
+            } catch (_) {
+            } finally {
+                localStorage.removeItem('auth_token');
+                localStorage.removeItem('auth_user');
+                localStorage.removeItem('selected_school_id');
+                localStorage.removeItem('selected_school_name');
+                sessionStorage.clear();
+                window.location.replace('dashboard.html?force_login=1');
+            }
+        }
+
+        async function saveProfileChanges() {
+            const token = localStorage.getItem('auth_token') || '';
+            if (!token) {
+                window.location.replace('dashboard.html?force_login=1');
+                return;
+            }
+
+            const full_name = (document.getElementById('profileName')?.value || '').trim();
+            const specialization = (document.getElementById('profileSpecialization')?.value || '').trim();
+
+            if (!full_name || full_name.length < 2) {
+                setMessage('الاسم يجب أن يكون حرفين على الأقل.');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API}/auth/profile`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        full_name,
+                        specialization
+                    })
+                });
+
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(data.detail || 'فشل حفظ التعديلات');
+
+                const user = getUserFromStorage();
+                user.full_name = data.full_name || full_name;
+                user.specialization = data.specialization || specialization || '';
+                localStorage.setItem('auth_user', JSON.stringify(user));
+
+                document.getElementById('profileName').value = user.full_name;
+                document.getElementById('profileSpecialization').value = user.specialization || '';
+                setMessage('تم حفظ التعديلات بنجاح.', true);
+            } catch (err) {
+                setMessage(err.message || 'حدث خطأ أثناء حفظ التعديلات.');
+            }
+        }
+
+        async function initProfilePage() {
+            if (!requireAuth()) return;
+
+            const user = getUserFromStorage();
+            if (!user || !Object.keys(user).length) {
+                setMessage('تعذر تحميل بيانات المستخدم الحالية.');
+                return;
+            }
+
+            document.getElementById('profileId').textContent = user.public_id || user.id || '-';
+            document.getElementById('profileName').value = user.full_name || '';
+            const schoolName = user.school_name || (localStorage.getItem('selected_school_name') || '-');
+            const schoolCode = canViewSchoolCode(user) ? await resolveSchoolCode(user) : '';
+            document.getElementById('profileSchool').textContent = schoolCode
+                ? `${schoolName} | كود المدرسة: ${schoolCode}`
+                : schoolName;
+            document.getElementById('profileSpecialization').value = user.specialization || '';
+
+            const photo = getProfilePhoto(user.id);
+            const avatarEl = document.getElementById('profileAvatar');
+            if (photo && avatarEl) {
+                avatarEl.innerHTML = `<img src="${photo}" alt="الصورة الشخصية">`;
+            }
+        }
+
+        initProfilePage();
+    </script>
+</body>
+</html>
+
+

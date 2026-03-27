@@ -1,0 +1,313 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+  <script src="../config.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدرستي - إعدادات الأمان</title>
+    <style>
+        /* Global hidden scrollbars with preserved scrolling */
+        html, body, * {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        html::-webkit-scrollbar,
+        body::-webkit-scrollbar,
+        *::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+            display: none;
+            background: transparent;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a1929 0%, #1a237e 100%);
+            color: #fff;
+            padding: 20px;
+        }
+        .container {
+            max-width: 860px;
+            margin: 0 auto;
+            background: #13294b;
+            border-radius: 18px;
+            padding: 26px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        h1 { font-size: 1.7em; color: #e3f2fd; }
+        .back-btn {
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            border-radius: 10px;
+            padding: 10px 16px;
+            background: linear-gradient(135deg, #37474f, #546e7a);
+        }
+        .section {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 14px;
+        }
+        .section h2 {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #bbdefb;
+        }
+        .hint {
+            color: #cfd8dc;
+            margin-bottom: 10px;
+            font-size: 0.92em;
+        }
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .password-stack {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        @media (max-width: 700px) {
+            .row { grid-template-columns: 1fr; }
+        }
+        input {
+            width: 100%;
+            border: 1px solid rgba(100, 181, 246, 0.35);
+            border-radius: 10px;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+        }
+        button {
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            border-radius: 10px;
+            padding: 10px 14px;
+            background: linear-gradient(135deg, #1976d2, #42a5f5);
+        }
+        .status {
+            margin-top: 8px;
+            font-size: 0.9em;
+            color: #e3f2fd;
+        }
+        .small-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: #bbdefb;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-btn" onclick="goDashboard()">← الرجوع للوحة الرئيسية</button>
+            <h1>🔒 إعدادات الأمان</h1>
+        </div>
+
+        <div class="section">
+            <h2>تغيير كلمة المرور</h2>
+            <div class="password-stack">
+                <input type="password" id="currentPassword" placeholder="كلمة المرور الحالية">
+                <input type="password" id="newPassword" placeholder="كلمة المرور الجديدة">
+                <input type="password" id="confirmPassword" placeholder="تأكيد كلمة المرور الجديدة">
+                <button onclick="changePassword()">حفظ كلمة المرور الجديدة</button>
+            </div>
+            <div class="status" id="changePasswordMsg"></div>
+        </div>
+
+        <div class="section">
+            <h2>تأكيد البريد الإلكتروني</h2>
+            <div class="hint">البريد الحالي: <span id="userEmail">-</span></div>
+            <button onclick="sendEmailConfirmation()">إرسال رابط/رمز التأكيد</button>
+            <div class="status" id="emailConfirmMsg"></div>
+        </div>
+
+        <div class="section">
+            <h2>تغيير رقم الهاتف</h2>
+            <div class="row">
+                <input type="text" id="newPhone" placeholder="أدخل رقم الهاتف الجديد">
+                <button onclick="changePhone()">تحديث رقم الهاتف</button>
+            </div>
+            <div class="status" id="changePhoneMsg"></div>
+        </div>
+
+        <div class="section">
+            <h2>استعادة كلمة المرور</h2>
+            <div class="hint">يمكنك طلب رابط/رمز استعادة مباشرة من هنا.</div>
+            <div class="row">
+                <input type="text" id="resetIdentifier" placeholder="البريد الإلكتروني أو رقم الهاتف">
+                <button onclick="requestPasswordReset()">طلب استعادة كلمة المرور</button>
+            </div>
+            <div class="status" id="resetPasswordMsg"></div>
+            <a class="small-link" href="reset_password.html">فتح صفحة إعادة تعيين كلمة المرور</a>
+        </div>
+    </div>
+
+    <script>
+        const API = (typeof API_BASE_URL !== 'undefined') ? API_BASE_URL : 'http://127.0.0.1:8000';
+
+        function goDashboard() {
+            window.location.href = 'dashboard.html';
+        }
+
+        function getUser() {
+            try {
+                return JSON.parse(localStorage.getItem('auth_user') || '{}');
+            } catch (_) {
+                return {};
+            }
+        }
+
+        function getToken() {
+            return localStorage.getItem('auth_token') || '';
+        }
+
+        function requireAuth() {
+            if (!getToken()) {
+                window.location.replace('dashboard.html?force_login=1');
+                return false;
+            }
+            return true;
+        }
+
+        function setStatus(id, msg, ok = false) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.textContent = msg;
+            el.style.color = ok ? '#81c784' : '#ffccbc';
+        }
+
+        async function changePassword() {
+            const current_password = document.getElementById('currentPassword').value;
+            const new_password = document.getElementById('newPassword').value;
+            const confirm_password = document.getElementById('confirmPassword').value;
+
+            if (!current_password || !new_password || !confirm_password) {
+                setStatus('changePasswordMsg', 'يرجى تعبئة جميع حقول كلمة المرور.');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API}/auth/password/change`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getToken()}`
+                    },
+                    body: JSON.stringify({ current_password, new_password, confirm_password })
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(data.detail || 'فشل تغيير كلمة المرور');
+                setStatus('changePasswordMsg', 'تم تغيير كلمة المرور بنجاح.', true);
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+            } catch (err) {
+                setStatus('changePasswordMsg', err.message || 'حدث خطأ غير متوقع.');
+            }
+        }
+
+        async function sendEmailConfirmation() {
+            const user = getUser();
+            const identifier = (user.email || '').trim();
+            if (!identifier) {
+                setStatus('emailConfirmMsg', 'لا يوجد بريد إلكتروني محفوظ للحساب.');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API}/auth/password/forgot/request`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ identifier })
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(data.detail || 'تعذر إرسال طلب التأكيد.');
+                setStatus('emailConfirmMsg', 'تم إرسال رسالة التأكيد إلى البريد الإلكتروني.', true);
+            } catch (err) {
+                setStatus('emailConfirmMsg', err.message || 'فشل إرسال طلب التأكيد.');
+            }
+        }
+
+        async function changePhone() {
+            const newPhone = (document.getElementById('newPhone').value || '').trim();
+            if (!newPhone) {
+                setStatus('changePhoneMsg', 'يرجى إدخال رقم الهاتف الجديد.');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API}/auth/profile`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getToken()}`
+                    },
+                    body: JSON.stringify({ phone: newPhone })
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(data.detail || 'تعذر تحديث رقم الهاتف.');
+
+                const user = getUser();
+                user.phone = data.phone || newPhone;
+                localStorage.setItem('auth_user', JSON.stringify(user));
+                document.getElementById('resetIdentifier').value = user.email || user.phone || '';
+                setStatus('changePhoneMsg', 'تم تحديث رقم الهاتف بنجاح.', true);
+            } catch (err) {
+                setStatus('changePhoneMsg', err.message || 'فشل تحديث رقم الهاتف.');
+            }
+        }
+
+        async function requestPasswordReset() {
+            const identifier = (document.getElementById('resetIdentifier').value || '').trim();
+            if (!identifier) {
+                setStatus('resetPasswordMsg', 'يرجى إدخال البريد أو رقم الهاتف.');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API}/auth/password/forgot/request`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ identifier })
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(data.detail || 'تعذر إرسال طلب الاستعادة.');
+                setStatus('resetPasswordMsg', 'تم إرسال تعليمات الاستعادة بنجاح.', true);
+            } catch (err) {
+                setStatus('resetPasswordMsg', err.message || 'فشل طلب الاستعادة.');
+            }
+        }
+
+        function initPage() {
+            if (!requireAuth()) return;
+            const user = getUser();
+            const email = user.email || '-';
+            const phone = user.phone || '';
+            document.getElementById('userEmail').textContent = email;
+            document.getElementById('newPhone').value = phone;
+            document.getElementById('resetIdentifier').value = (user.email || user.phone || '');
+        }
+
+        initPage();
+    </script>
+</body>
+</html>
+
+

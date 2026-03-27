@@ -1,0 +1,122 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+  <script src="../config.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدرستي - تواصل مع فريق الدعم</title>
+    <style>
+        /* Global hidden scrollbars with preserved scrolling */
+        html, body, * {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        html::-webkit-scrollbar,
+        body::-webkit-scrollbar,
+        *::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+            display: none;
+            background: transparent;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a1929 0%, #1a237e 100%);
+            color: #fff;
+            padding: 20px;
+        }
+        .container {
+            max-width: 760px;
+            margin: 0 auto;
+            background: #13294b;
+            border-radius: 18px;
+            padding: 26px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+            gap: 10px;
+        }
+        h1 { font-size: 1.7em; color: #e3f2fd; }
+        .back-btn {
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            border-radius: 10px;
+            padding: 10px 16px;
+            background: linear-gradient(135deg, #37474f, #546e7a);
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 14px;
+        }
+        .label {
+            color: #bbdefb;
+            font-size: 0.92em;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .value {
+            font-size: 1.15em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .whatsapp-btn {
+            display: inline-block;
+            text-decoration: none;
+            border-radius: 10px;
+            color: #fff;
+            padding: 10px 16px;
+            background: linear-gradient(135deg, #2e7d32, #66bb6a);
+        }
+        .email-link {
+            color: #e3f2fd;
+            text-decoration: underline;
+            font-size: 1.05em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-btn" onclick="goDashboard()">← الرجوع للوحة الرئيسية</button>
+            <h1>📞 تواصل مع فريق الدعم</h1>
+        </div>
+
+        <div class="card">
+            <span class="label">رقم التواصل عبر واتساب</span>
+            <div class="value">0781939228</div>
+            <a class="whatsapp-btn" href="https://wa.me/962781939228" target="_blank" rel="noopener noreferrer">فتح واتساب مباشرة</a>
+        </div>
+
+        <div class="card">
+            <span class="label">البريد الإلكتروني</span>
+            <a class="email-link" href="mailto:mfysbw@gmail.com">mfysbw@gmail.com</a>
+        </div>
+    </div>
+
+    <script>
+        function goDashboard() {
+            window.location.href = 'dashboard.html';
+        }
+
+        (function requireAuth() {
+            const token = localStorage.getItem('auth_token') || '';
+            if (!token) {
+                window.location.replace('dashboard.html?force_login=1');
+            }
+        })();
+    </script>
+</body>
+</html>
+
+

@@ -1,0 +1,607 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+  <script src="../config.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدرستي - إنشاء حساب</title>
+    <style>
+        /* Global hidden scrollbars with preserved scrolling */
+        html, body, * {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        html::-webkit-scrollbar,
+        body::-webkit-scrollbar,
+        *::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+            display: none;
+            background: transparent;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a1929 0%, #1a237e 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            color: #fff;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 520px;
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 28px;
+            border: 1px solid rgba(255,255,255,0.12);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.35);
+        }
+
+        h1 {
+            text-align: center;
+            color: #64b5f6;
+            margin-bottom: 22px;
+            font-size: 1.8em;
+        }
+
+        .password-wrap {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 1.1em;
+            color: #90caf9;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #90caf9;
+            font-size: 0.9em;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid rgba(100, 181, 246, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #64b5f6;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        select option {
+            background: #1a237e;
+            color: #fff;
+        }
+
+        .searchable-dropdown {
+            position: relative;
+        }
+
+        .searchable-dropdown-input {
+            padding-left: 40px;
+        }
+
+        .searchable-dropdown-caret {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #90caf9;
+            pointer-events: none;
+            transition: transform 0.2s ease;
+            font-size: 0.9em;
+        }
+
+        .searchable-dropdown.open .searchable-dropdown-caret {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .searchable-dropdown-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            left: 0;
+            background: rgba(18, 40, 74, 0.98);
+            border: 1px solid rgba(100, 181, 246, 0.35);
+            border-radius: 10px;
+            max-height: 230px;
+            overflow-y: auto;
+            z-index: 50;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+        }
+
+        .searchable-dropdown.open .searchable-dropdown-menu {
+            display: block;
+        }
+
+        .searchable-dropdown-option {
+            padding: 10px 12px;
+            cursor: pointer;
+            color: #e3f2fd;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            transition: background 0.15s ease;
+        }
+
+        .searchable-dropdown-option:last-child {
+            border-bottom: none;
+        }
+
+        .searchable-dropdown-option:hover,
+        .searchable-dropdown-option.active {
+            background: rgba(100, 181, 246, 0.22);
+            color: #ffffff;
+        }
+
+        .searchable-dropdown-empty {
+            padding: 10px 12px;
+            color: #90caf9;
+            font-size: 0.92em;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #1976d2, #64b5f6);
+            color: white;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(100, 181, 246, 0.4);
+        }
+
+        .msg {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.95em;
+        }
+
+        .msg.error {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid #f44336;
+            color: #e57373;
+        }
+
+        .msg.success {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid #4caf50;
+            color: #81c784;
+        }
+
+        .back-link {
+            display: block;
+            margin-top: 16px;
+            text-align: center;
+            color: #90caf9;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            color: #64b5f6;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>إنشاء حساب</h1>
+        <form id="registerForm">
+            <div class="form-group">
+                <label>اختر مدرستك</label>
+                <div id="schoolSearchDropdown" class="searchable-dropdown">
+                    <input type="text" id="schoolSearch" class="searchable-dropdown-input" placeholder="اكتب اسم المدرسة للبحث" autocomplete="off">
+                    <span class="searchable-dropdown-caret">▼</span>
+                    <div id="schoolDropdownMenu" class="searchable-dropdown-menu"></div>
+                </div>
+                <input type="hidden" id="schoolSelect" value="">
+            </div>
+            <div class="form-group">
+                <label>نوع الحساب</label>
+                <select id="accountType">
+                    <option value="">-- اختر نوع الحساب --</option>
+                    <option value="teacher">معلم</option>
+                    <option value="admin">إدارة المدرسة</option>
+                    <option value="principal">مدير المدرسة</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>كود المدرسة</label>
+                <input type="text" id="schoolCode">
+            </div>
+            <div class="form-group">
+                <label>الاسم الرباعي</label>
+                <input type="text" id="fullName">
+            </div>
+            <div class="form-group">
+                <label>البريد الإلكتروني</label>
+                <input type="email" id="email">
+            </div>
+            <div class="form-group">
+                <label>كلمة المرور</label>
+                <div class="password-wrap">
+                    <input type="password" id="password">
+                    <span class="password-toggle" onclick="togglePassword()">👁️</span>
+                </div>
+            </div>
+            <button class="btn" id="createBtn" type="submit">إنشاء الحساب</button>
+            <div id="formMsg"></div>
+        </form>
+        <a class="back-link" href="dashboard.html">العودة لتسجيل الدخول</a>
+    </div>
+
+    <script>
+        const API_CANDIDATES = (() => {
+            const configured = String(localStorage.getItem('api_base_url') || '').trim();
+            const sameHostBase = `${window.location.protocol}//${window.location.hostname}:8000`;
+            return Array.from(new Set([
+                configured,
+                sameHostBase,
+                'http://127.0.0.1:8000',
+                'http://localhost:8000'
+            ].filter(Boolean)));
+        })();
+        let API = API_CANDIDATES[0] || 'http://127.0.0.1:8000';
+        const form = document.getElementById('registerForm');
+        const msg = document.getElementById('formMsg');
+        const createBtn = document.getElementById('createBtn');
+        const schoolSelect = document.getElementById('schoolSelect');
+        const schoolSearch = document.getElementById('schoolSearch');
+        const schoolSearchDropdown = document.getElementById('schoolSearchDropdown');
+        const schoolDropdownMenu = document.getElementById('schoolDropdownMenu');
+        const schoolCodeInput = document.getElementById('schoolCode');
+        let schoolsCatalog = [];
+        let filteredSchoolsCatalog = [];
+
+        function showMessage(text, type) {
+            msg.className = 'msg ' + type;
+            msg.textContent = text;
+        }
+
+        function normalizeErrorMessage(err) {
+            const raw = (err && err.message) ? String(err.message) : '';
+            if (!raw) return 'حدث خطأ في البيانات';
+            if (raw.includes('Failed to fetch')) {
+                return 'تعذر الاتصال بالخادم. تأكد من تشغيل Backend على المنفذ 8000';
+            }
+            if (raw.includes('إعدادات البريد الإلكتروني غير مكتملة')) {
+                return 'إعدادات SMTP غير مكتملة في ملف .env. ضع SMTP_USER وSMTP_PASSWORD (App Password) وSMTP_FROM_EMAIL ثم أعد المحاولة.';
+            }
+            return raw;
+        }
+
+        async function fetchWithApiFallback(path, options = {}) {
+            let lastError = null;
+            for (const baseUrl of API_CANDIDATES) {
+                try {
+                    const response = await fetch(`${baseUrl}${path}`, options);
+                    API = baseUrl;
+                    return response;
+                } catch (err) {
+                    lastError = err;
+                }
+            }
+            throw lastError || new Error('Failed to fetch');
+        }
+
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        function isValidPassword(password) {
+            return /^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(password || '');
+        }
+
+        function renderSchools(schools) {
+            schoolsCatalog = Array.isArray(schools) ? schools : [];
+            filteredSchoolsCatalog = schoolsCatalog.slice();
+            renderSchoolDropdownOptions();
+        }
+
+        function openSchoolDropdown() {
+            if (!schoolSearchDropdown) return;
+            schoolSearchDropdown.classList.add('open');
+        }
+
+        function closeSchoolDropdown() {
+            if (!schoolSearchDropdown) return;
+            schoolSearchDropdown.classList.remove('open');
+        }
+
+        function renderSchoolDropdownOptions() {
+            if (!schoolDropdownMenu) return;
+            const selectedSchoolId = String(schoolSelect.value || '');
+
+            if (!filteredSchoolsCatalog.length) {
+                schoolDropdownMenu.innerHTML = '<div class="searchable-dropdown-empty">لا توجد مدارس مطابقة</div>';
+                return;
+            }
+
+            schoolDropdownMenu.innerHTML = filteredSchoolsCatalog.map((school) => {
+                const isActive = String(school.id || '') === selectedSchoolId;
+                return `<div class="searchable-dropdown-option${isActive ? ' active' : ''}" data-school-id="${String(school.id || '')}">${school.name || '-'}</div>`;
+            }).join('');
+        }
+
+        function filterSchoolsByTerm(term) {
+            const normalized = String(term || '').trim().toLowerCase();
+            if (!normalized) {
+                filteredSchoolsCatalog = schoolsCatalog.slice();
+                renderSchoolDropdownOptions();
+                return;
+            }
+
+            filteredSchoolsCatalog = schoolsCatalog
+                .filter((school) => String(school.name || '').toLowerCase().includes(normalized))
+                .sort((a, b) => {
+                    const aName = String(a.name || '').toLowerCase();
+                    const bName = String(b.name || '').toLowerCase();
+                    const aIndex = aName.indexOf(normalized);
+                    const bIndex = bName.indexOf(normalized);
+                    if (aIndex !== bIndex) return aIndex - bIndex;
+                    return aName.localeCompare(bName, 'ar');
+                });
+
+            renderSchoolDropdownOptions();
+        }
+
+        function selectSchoolById(schoolId) {
+            const school = schoolsCatalog.find(s => String(s.id) === String(schoolId || ''));
+            if (!school) return;
+
+            schoolSelect.value = String(school.id || '');
+            schoolSearch.value = String(school.name || '').trim();
+            schoolCodeInput.value = '';
+            filteredSchoolsCatalog = schoolsCatalog.slice();
+            renderSchoolDropdownOptions();
+            closeSchoolDropdown();
+        }
+
+        function resolveSelectedSchool(updateInputValue = false) {
+            const typedName = (schoolSearch.value || '').trim();
+            const typedNameLower = typedName.toLowerCase();
+
+            if (!typedName) {
+                schoolSelect.value = '';
+                return null;
+            }
+
+            const exact = schoolsCatalog.find(s => String(s.name || '').trim().toLowerCase() === typedNameLower);
+            if (!exact) {
+                schoolSelect.value = '';
+                return null;
+            }
+
+            schoolSelect.value = String(exact.id || '');
+            if (updateInputValue) {
+                schoolSearch.value = String(exact.name || '').trim();
+            }
+            return exact;
+        }
+
+        async function loadSchools() {
+            try {
+                const res = await fetchWithApiFallback('/schools');
+                const data = await res.json().catch(() => ({}));
+                const schools = res.ok
+                    ? ((data.schools || []).filter(s => !(s.code || '').startsWith('LEGACY-')))
+                    : [];
+
+                renderSchools(schools);
+            } catch (err) {
+                renderSchools([]);
+                showMessage('تعذر تحميل المدارس من الخادم. تأكد من تشغيل Backend.', 'error');
+            }
+        }
+
+        schoolSearch.addEventListener('focus', () => {
+            filterSchoolsByTerm(schoolSearch.value);
+            openSchoolDropdown();
+        });
+
+        schoolSearch.addEventListener('input', () => {
+            const selected = resolveSelectedSchool(false);
+            schoolSelect.value = selected ? String(selected.id || '') : '';
+            if (!selected) {
+                schoolCodeInput.value = '';
+            }
+            filterSchoolsByTerm(schoolSearch.value);
+            openSchoolDropdown();
+        });
+
+        schoolSearch.addEventListener('change', () => {
+            const selected = resolveSelectedSchool(false);
+            schoolSelect.value = selected ? String(selected.id || '') : '';
+            filterSchoolsByTerm(schoolSearch.value);
+        });
+
+        schoolSearch.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                closeSchoolDropdown();
+            }
+        });
+
+        schoolDropdownMenu.addEventListener('mousedown', (event) => {
+            const option = event.target.closest('.searchable-dropdown-option');
+            if (!option) return;
+            event.preventDefault();
+            const schoolId = option.getAttribute('data-school-id') || '';
+            selectSchoolById(schoolId);
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!schoolSearchDropdown.contains(event.target)) {
+                closeSchoolDropdown();
+            }
+        });
+
+        async function createAccountOnServer(payload) {
+            const res = await fetchWithApiFallback('/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: payload.email,
+                    full_name: payload.full_name,
+                    password: payload.password,
+                    school_id: payload.school_id,
+                    school_code: payload.school_code,
+                    role: payload.role
+                })
+            });
+
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                throw new Error(data.detail || 'فشل إنشاء الحساب');
+            }
+            return data;
+        }
+
+        async function autoLoginAndRedirect(payload) {
+            const selectedSchool = resolveSelectedSchool(true);
+            const selectedSchoolName = String(selectedSchool?.name || schoolSearch.value || '-').trim() || '-';
+            const res = await fetchWithApiFallback('/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: payload.email,
+                    password: payload.password,
+                    school_id: payload.school_id,
+                    school_code: payload.school_code
+                })
+            });
+
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                throw new Error(data.detail || 'تم إنشاء الحساب ولكن تعذر تسجيل الدخول التلقائي');
+            }
+
+            const token = data.access_token || data.token || '';
+            if (!token) {
+                throw new Error('تم إنشاء الحساب ولكن لم يتم استلام رمز الدخول');
+            }
+
+            const aliasesRaw = localStorage.getItem('user_role_aliases') || '{}';
+            let aliases = {};
+            try {
+                aliases = JSON.parse(aliasesRaw);
+            } catch (_) {
+                aliases = {};
+            }
+            aliases[(payload.email || '').trim().toLowerCase()] = String(payload.role || '').toLowerCase();
+            localStorage.setItem('user_role_aliases', JSON.stringify(aliases));
+
+            localStorage.setItem('auth_token', token);
+            localStorage.setItem('auth_user', JSON.stringify(data.user || {}));
+            localStorage.setItem('selected_school_id', String(payload.school_id));
+            localStorage.setItem('selected_school_name', selectedSchoolName);
+            sessionStorage.setItem('auth_password_shadow', payload.password || '');
+
+            window.location.href = `dashboard.html?home=${encodeURIComponent(String(payload.role || 'teacher').toLowerCase())}`;
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const selectedSchool = resolveSelectedSchool(true);
+            const school = String(selectedSchool?.id || '').trim();
+            const accountType = document.getElementById('accountType').value.trim();
+            const schoolCode = document.getElementById('schoolCode').value.trim();
+            const fullName = document.getElementById('fullName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!school) {
+                showMessage('🔴 يجب عليك اختيار مدرسة.', 'error');
+                return;
+            }
+            if (!accountType || !schoolCode || !fullName || !email || !password) {
+                showMessage('🔴 يرجى تعبئة جميع الحقول المطلوبة.', 'error');
+                return;
+            }
+            if (fullName.length < 6) {
+                showMessage('أدخل الاسم الرباعي كاملاً', 'error');
+                return;
+            }
+            if (!isValidEmail(email)) {
+                showMessage('البريد الإلكتروني غير صالح', 'error');
+                return;
+            }
+            if (!isValidPassword(password)) {
+                showMessage('كلمة المرور يجب أن تكون 8 أحرف على الأقل وتحتوي على حرف ورقم', 'error');
+                return;
+            }
+
+            const expectedSchoolCode = String(selectedSchool?.code || '').trim().toUpperCase();
+            const enteredSchoolCode = String(schoolCode || '').trim().toUpperCase();
+            if (!expectedSchoolCode || enteredSchoolCode !== expectedSchoolCode) {
+                showMessage('كود المدرسة غير صحيح أو لا يطابق المدرسة المختارة', 'error');
+                return;
+            }
+
+            const registrationData = {
+                school_id: Number(school),
+                role: accountType,
+                school_code: enteredSchoolCode,
+                full_name: fullName,
+                email,
+                password
+            };
+
+            createBtn.disabled = true;
+            try {
+                await createAccountOnServer(registrationData);
+                showMessage('✅ تم إنشاء الحساب بنجاح. جاري تسجيل الدخول...', 'success');
+                await autoLoginAndRedirect(registrationData);
+            } catch (err) {
+                showMessage(normalizeErrorMessage(err), 'error');
+            } finally {
+                createBtn.disabled = false;
+            }
+        });
+
+        function togglePassword() {
+            const input = document.getElementById('password');
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+
+        loadSchools();
+    </script>
+</body>
+</html>
+
+

@@ -1,0 +1,651 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+  <script src="../config.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدرستي - إدارة المدارس</title>
+    <style>
+        /* Global hidden scrollbars with preserved scrolling */
+        html, body, * {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        html::-webkit-scrollbar,
+        body::-webkit-scrollbar,
+        *::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+            display: none;
+            background: transparent;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a1929 0%, #1a237e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            padding-bottom: 110px;
+        }
+
+        main {
+            width: 100%;
+            min-height: 100vh;
+            max-width: 1100px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        h1 {
+            color: #64b5f6;
+            font-size: 2.1em;
+            margin-bottom: 18px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(100, 181, 246, 0.2);
+            border-radius: 14px;
+            padding: 20px;
+        }
+
+        .card h2 {
+            color: #90caf9;
+            font-size: 1.2em;
+            margin-bottom: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #bbdefb;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid rgba(100, 181, 246, 0.35);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+            font-size: 1em;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #64b5f6;
+            box-shadow: 0 0 0 3px rgba(100, 181, 246, 0.16);
+        }
+
+        button {
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            padding: 12px 14px;
+            font-weight: 700;
+        }
+
+        .save-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #1976d2, #64b5f6);
+        }
+
+        .secondary-btn {
+            width: 100%;
+            margin-top: 8px;
+            background: rgba(255, 255, 255, 0.14);
+        }
+
+        .schools-list {
+            display: grid;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .school-item {
+            border: 1px solid rgba(100, 181, 246, 0.22);
+            border-radius: 10px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.04);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .school-name {
+            color: #e3f2fd;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .school-code {
+            color: #bbdefb;
+            font-size: 0.9em;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .edit-btn {
+            background: rgba(255, 152, 0, 0.38);
+        }
+
+        .delete-btn {
+            background: rgba(244, 67, 54, 0.38);
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #bbdefb;
+            padding: 26px;
+            border: 1px dashed rgba(100, 181, 246, 0.35);
+            border-radius: 12px;
+            margin-top: 8px;
+        }
+
+        .message {
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+
+        .success {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid #4caf50;
+            color: #9be7a1;
+        }
+
+        .error {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid #f44336;
+            color: #ffb3ad;
+        }
+
+        .back-home-wrap {
+            margin-top: 18px;
+            text-align: center;
+        }
+
+        .back-home-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            left: auto;
+            bottom: auto;
+            transform: none;
+            z-index: 1000;
+            width: auto;
+            border: none;
+            border-radius: 10px;
+            padding: 7px 12px;
+            background: linear-gradient(135deg, #ff9800, #ffb74d);
+            color: #fff;
+            font-weight: bold;
+            font-size: 0.82em;
+            cursor: pointer;
+        }
+
+        .confirm-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(4, 12, 22, 0.72);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 9999;
+        }
+
+        .confirm-modal-overlay.open {
+            display: flex;
+        }
+
+        .confirm-modal-card {
+            width: 100%;
+            max-width: 440px;
+            background: #13294b;
+            border: 1px solid rgba(100, 181, 246, 0.35);
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+        }
+
+        .confirm-modal-title {
+            color: #90caf9;
+            font-size: 1.2em;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .confirm-modal-text {
+            color: #e3f2fd;
+            line-height: 1.6;
+            margin-bottom: 14px;
+        }
+
+        .confirm-modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .confirm-cancel-btn {
+            background: rgba(255, 255, 255, 0.14);
+        }
+
+        .confirm-danger-btn {
+            background: linear-gradient(135deg, #c62828, #ef5350);
+        }
+
+        .toast-stack {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 10020;
+        }
+
+        .toast {
+            min-width: 280px;
+            max-width: 360px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.14);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.28);
+            backdrop-filter: blur(10px);
+            font-weight: 700;
+            animation: toast-in 0.22s ease;
+        }
+
+        .toast.success {
+            background: rgba(46, 125, 50, 0.92);
+            color: #f1fff3;
+            border-color: rgba(129, 199, 132, 0.45);
+        }
+
+        .toast.error {
+            background: rgba(183, 28, 28, 0.92);
+            color: #fff1f1;
+            border-color: rgba(239, 154, 154, 0.45);
+        }
+
+        @keyframes toast-in {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="toastStack" class="toast-stack"></div>
+    <main>
+        <h1>🏫 إدارة المدارس</h1>
+
+        <div class="grid-2">
+            <section class="card">
+                <h2 id="formTitle">➕ إضافة مدرسة جديدة</h2>
+                <div class="form-group">
+                    <label for="schoolName">اسم المدرسة</label>
+                    <input type="text" id="schoolName" maxlength="255" placeholder="أدخل اسم المدرسة">
+                </div>
+                <div class="form-group">
+                    <label for="schoolCode">كود المدرسة (فريد)</label>
+                    <input type="text" id="schoolCode" maxlength="50" placeholder="مثال: RMTHA-001">
+                </div>
+                <button class="save-btn" id="saveSchoolBtn" type="button" onclick="saveSchool()">حفظ</button>
+                <button class="secondary-btn" id="cancelEditBtn" type="button" onclick="cancelEdit()" style="display:none;">إلغاء التعديل</button>
+                <div id="formMessage"></div>
+            </section>
+
+            <section class="card">
+                <h2>قائمة المدارس</h2>
+                <div id="schoolsContainer"></div>
+            </section>
+        </div>
+
+        <div class="back-home-wrap">
+            <button class="back-home-btn" type="button" onclick="goBackToDashboard()">🔙 رجوع للصفحة الرئيسية</button>
+        </div>
+    </main>
+
+    <div id="confirmModal" class="confirm-modal-overlay" onclick="onConfirmModalOverlayClick(event)">
+        <div class="confirm-modal-card" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle" aria-describedby="confirmModalText">
+            <div id="confirmModalTitle" class="confirm-modal-title">تأكيد</div>
+            <div id="confirmModalText" class="confirm-modal-text">هل أنت متأكد؟</div>
+            <div class="confirm-modal-actions">
+                <button id="confirmModalCancelBtn" class="confirm-cancel-btn" type="button" onclick="closeConfirmModal(false)">إلغاء</button>
+                <button id="confirmModalActionBtn" class="confirm-danger-btn" type="button" onclick="closeConfirmModal(true)">تأكيد</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_CANDIDATES = (() => {
+            const configured = String(localStorage.getItem('api_base_url') || '').trim();
+            const sameHostBase = `${window.location.protocol}//${window.location.hostname}:8000`;
+            return Array.from(new Set([
+                configured,
+                sameHostBase,
+                'http://127.0.0.1:8000',
+                'http://localhost:8000'
+            ].filter(Boolean)));
+        })();
+        let API = API_CANDIDATES[0] || 'http://127.0.0.1:8000';
+
+        let schoolsCache = [];
+        let editingSchoolId = null;
+        let confirmModalResolver = null;
+
+        function getAuthToken() {
+            return localStorage.getItem('auth_token') || '';
+        }
+
+        function getCurrentUser() {
+            try {
+                const raw = localStorage.getItem('auth_user');
+                return raw ? JSON.parse(raw) : null;
+            } catch {
+                return null;
+            }
+        }
+
+        function isSuperAdmin() {
+            const user = getCurrentUser();
+            if (!user) return false;
+            return Boolean(user.is_super_admin) || String(user.role_label || '').toLowerCase() === 'super_admin';
+        }
+
+        async function apiRequest(path, options = {}) {
+            const token = getAuthToken();
+            if (!token) {
+                throw new Error('جلسة الدخول غير موجودة. الرجاء تسجيل الدخول أولاً');
+            }
+
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                ...(options.headers || {})
+            };
+
+            let lastError = null;
+            for (const baseUrl of API_CANDIDATES) {
+                try {
+                    const res = await fetch(`${baseUrl}${path}`, {
+                        ...options,
+                        headers
+                    });
+                    API = baseUrl;
+
+                    let data = null;
+                    try {
+                        data = await res.json();
+                    } catch {
+                        data = null;
+                    }
+
+                    if (!res.ok) {
+                        const detail = data?.detail || `HTTP ${res.status}`;
+                        const err = new Error(detail);
+                        err.status = res.status;
+                        throw err;
+                    }
+
+                    return data;
+                } catch (error) {
+                    lastError = error;
+                }
+            }
+
+            throw lastError || new Error('تعذر الاتصال بالخادم');
+        }
+
+        function showMessage(text, type = 'success') {
+            const el = document.getElementById('formMessage');
+            if (el) el.innerHTML = '';
+            showToast(text, type);
+        }
+
+        function clearMessage() {
+            document.getElementById('formMessage').innerHTML = '';
+        }
+
+        function showToast(text, type = 'success') {
+            const toastStack = document.getElementById('toastStack');
+            const value = String(text || '').trim();
+            if (!toastStack || !value) return;
+
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = value;
+            toastStack.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3500);
+        }
+
+        function resetForm() {
+            editingSchoolId = null;
+            document.getElementById('schoolName').value = '';
+            document.getElementById('schoolCode').value = '';
+            document.getElementById('formTitle').textContent = '➕ إضافة مدرسة جديدة';
+            document.getElementById('saveSchoolBtn').textContent = 'حفظ';
+            document.getElementById('cancelEditBtn').style.display = 'none';
+        }
+
+        function cancelEdit() {
+            resetForm();
+            clearMessage();
+        }
+
+        async function loadSchools() {
+            const data = await apiRequest('/schools', { method: 'GET' });
+            schoolsCache = Array.isArray(data?.schools) ? data.schools : [];
+            renderSchools();
+        }
+
+        function renderSchools() {
+            const container = document.getElementById('schoolsContainer');
+            if (!schoolsCache.length) {
+                container.innerHTML = '<div class="empty-message">لا توجد مدارس مضافة حالياً</div>';
+                return;
+            }
+
+            container.innerHTML = `<div class="schools-list">${schoolsCache.map((school) => `
+                <div class="school-item">
+                    <div>
+                        <div class="school-name">${school.name || '-'}</div>
+                        <div class="school-code">الكود: ${school.code || '-'}</div>
+                    </div>
+                    <div class="item-actions">
+                        <button class="edit-btn" type="button" onclick="editSchool(${school.id})">تعديل</button>
+                        <button class="delete-btn" type="button" onclick="deleteSchool(${school.id})">حذف</button>
+                    </div>
+                </div>
+            `).join('')}</div>`;
+        }
+
+        function editSchool(schoolId) {
+            const school = schoolsCache.find((item) => item.id === schoolId);
+            if (!school) return;
+
+            editingSchoolId = school.id;
+            document.getElementById('schoolName').value = school.name || '';
+            document.getElementById('schoolCode').value = school.code || '';
+            document.getElementById('formTitle').textContent = '✏️ تعديل بيانات المدرسة';
+            document.getElementById('saveSchoolBtn').textContent = 'حفظ التعديل';
+            document.getElementById('cancelEditBtn').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function saveSchool() {
+            clearMessage();
+
+            const schoolName = String(document.getElementById('schoolName').value || '').trim();
+            const schoolCode = String(document.getElementById('schoolCode').value || '').trim().toUpperCase();
+
+            if (!schoolName || !schoolCode) {
+                showMessage('يرجى إدخال اسم المدرسة وكود المدرسة', 'error');
+                return;
+            }
+
+            const payload = {
+                name: schoolName,
+                code: schoolCode
+            };
+
+            try {
+                if (editingSchoolId) {
+                    await apiRequest(`/schools/${editingSchoolId}`, {
+                        method: 'PUT',
+                        body: JSON.stringify(payload)
+                    });
+                    showMessage('✓ تم تعديل المدرسة بنجاح', 'success');
+                } else {
+                    await apiRequest('/schools', {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    });
+                    showMessage('✓ تم إضافة المدرسة بنجاح', 'success');
+                }
+
+                resetForm();
+                await loadSchools();
+            } catch (error) {
+                showMessage(`✗ ${error.message || 'فشلت العملية'}`, 'error');
+            }
+        }
+
+        async function deleteSchool(schoolId) {
+            const school = schoolsCache.find((item) => item.id === schoolId);
+            if (!school) return;
+
+            const accepted = await openConfirmModal({
+                title: 'تأكيد الحذف',
+                message: 'هل أنت متأكد من حذف هذه المدرسة؟',
+                cancelText: 'إلغاء',
+                confirmText: 'تأكيد الحذف',
+                variant: 'danger'
+            });
+            if (!accepted) return;
+
+            try {
+                await apiRequest(`/schools/${schoolId}`, { method: 'DELETE' });
+                showMessage('✓ تم حذف المدرسة بنجاح', 'success');
+                if (editingSchoolId === schoolId) {
+                    resetForm();
+                }
+                await loadSchools();
+            } catch (error) {
+                showMessage(`✗ ${error.message || 'تعذر حذف المدرسة'}`, 'error');
+            }
+        }
+
+        function goBackToDashboard() {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({ type: 'madrasti:navigate', section: 'home' }, window.location.origin);
+                return;
+            }
+            window.location.href = '../dashboard.html';
+        }
+
+        function onConfirmModalOverlayClick(event) {
+            if (event.target?.id === 'confirmModal') {
+                closeConfirmModal(false);
+            }
+        }
+
+        function closeConfirmModal(confirmed) {
+            const modal = document.getElementById('confirmModal');
+            if (modal) {
+                modal.classList.remove('open');
+            }
+
+            if (confirmModalResolver) {
+                const resolver = confirmModalResolver;
+                confirmModalResolver = null;
+                resolver(Boolean(confirmed));
+            }
+        }
+
+        function openConfirmModal(options = {}) {
+            return new Promise((resolve) => {
+                confirmModalResolver = resolve;
+
+                const titleEl = document.getElementById('confirmModalTitle');
+                const textEl = document.getElementById('confirmModalText');
+                const cancelBtn = document.getElementById('confirmModalCancelBtn');
+                const actionBtn = document.getElementById('confirmModalActionBtn');
+                const modal = document.getElementById('confirmModal');
+
+                titleEl.textContent = options.title || 'تأكيد';
+                textEl.textContent = options.message || 'هل أنت متأكد؟';
+                cancelBtn.textContent = options.cancelText || 'إلغاء';
+                actionBtn.textContent = options.confirmText || 'تأكيد';
+
+                actionBtn.className = options.variant === 'danger' ? 'confirm-danger-btn' : 'save-btn';
+
+                if (modal) {
+                    modal.classList.add('open');
+                }
+            });
+        }
+
+        window.addEventListener('load', async () => {
+            if (!isSuperAdmin()) {
+                showMessage('هذه الصفحة متاحة لمسؤول النظام فقط.', 'error');
+                document.getElementById('saveSchoolBtn').disabled = true;
+                return;
+            }
+
+            try {
+                await loadSchools();
+            } catch (error) {
+                showMessage(`✗ ${error.message || 'تعذر تحميل المدارس'}`, 'error');
+            }
+        });
+    </script>
+</body>
+</html>
+
+

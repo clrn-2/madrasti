@@ -1,0 +1,710 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+  <script src="../config.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدرستي - إدارة الصفوف والطلاب</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a1929 0%, #1a237e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            padding-bottom: 110px;
+        }
+
+        main {
+            width: 100%;
+            min-height: 100vh;
+            max-width: 1100px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        h1 {
+            color: #64b5f6;
+            font-size: 2.2em;
+            margin-bottom: 20px;
+        }
+
+        .form-card,
+        .list-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(100, 181, 246, 0.2);
+            border-radius: 14px;
+            padding: 22px;
+        }
+
+        .form-card {
+            margin-bottom: 18px;
+        }
+
+        .form-title,
+        .list-title {
+            color: #90caf9;
+            font-size: 1.25em;
+            margin-bottom: 14px;
+            font-weight: 700;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #bbdefb;
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid rgba(100, 181, 246, 0.35);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+            font-size: 1em;
+            font-family: inherit;
+        }
+
+        textarea {
+            min-height: 180px;
+            resize: vertical;
+            line-height: 1.55;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #64b5f6;
+            box-shadow: 0 0 0 3px rgba(100, 181, 246, 0.16);
+        }
+
+        .helper {
+            margin-top: 6px;
+            color: #9ecfff;
+            font-size: 0.9em;
+        }
+
+        .save-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #1976d2, #64b5f6);
+            color: #fff;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 1.05em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .save-btn:hover,
+        .edit-btn:hover,
+        .delete-btn:hover,
+        .back-home-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .list-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .list-toggle-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: transparent;
+            border: none;
+            color: #90caf9;
+            font-size: 1.25em;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 0;
+            text-align: right;
+        }
+
+        .list-arrow {
+            color: #bbdefb;
+            font-size: 0.95em;
+            margin-right: 8px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .message {
+            margin-top: 14px;
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .success {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid #4caf50;
+            color: #9be7a1;
+        }
+
+        .error {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid #f44336;
+            color: #ffb3ad;
+        }
+
+        .classes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
+        }
+
+        .class-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(100, 181, 246, 0.2);
+            border-radius: 12px;
+            padding: 14px;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .class-name {
+            color: #7ec6ff;
+            font-size: 1.08em;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .class-students {
+            color: #b4ddff;
+            font-size: 0.93em;
+        }
+
+        .class-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .edit-btn,
+        .delete-btn {
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            cursor: pointer;
+            color: #fff;
+        }
+
+        .edit-btn {
+            background: rgba(255, 152, 0, 0.38);
+        }
+
+        .delete-btn {
+            background: rgba(244, 67, 54, 0.38);
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #bbdefb;
+            padding: 28px;
+            border: 1px dashed rgba(100, 181, 246, 0.35);
+            border-radius: 12px;
+        }
+
+        .back-home-wrap {
+            margin-top: 18px;
+            text-align: center;
+        }
+
+        .back-home-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            left: auto;
+            bottom: auto;
+            transform: none;
+            z-index: 1000;
+            width: auto;
+            border: none;
+            border-radius: 10px;
+            padding: 7px 12px;
+            background: linear-gradient(135deg, #ff9800, #ffb74d);
+            color: #fff;
+            font-weight: bold;
+            font-size: 0.82em;
+            cursor: pointer;
+        }
+
+        .toast-stack {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1200;
+        }
+
+        .toast {
+            min-width: 280px;
+            max-width: 360px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+            backdrop-filter: blur(8px);
+            font-weight: 700;
+            animation: toast-in 0.22s ease;
+        }
+
+        .toast.success {
+            background: rgba(46, 125, 50, 0.92);
+            color: #f1fff3;
+            border-color: rgba(129, 199, 132, 0.45);
+        }
+
+        .confirm-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(3, 12, 24, 0.72);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1300;
+            padding: 20px;
+        }
+
+        .confirm-overlay.active {
+            display: flex;
+        }
+
+        .confirm-dialog {
+            width: min(420px, 100%);
+            background: linear-gradient(180deg, rgba(10, 25, 41, 0.98), rgba(20, 35, 68, 0.98));
+            border: 1px solid rgba(100, 181, 246, 0.28);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 18px 44px rgba(0, 0, 0, 0.34);
+            text-align: center;
+        }
+
+        .confirm-dialog h3 {
+            color: #90caf9;
+            margin-bottom: 12px;
+            font-size: 1.35em;
+        }
+
+        .confirm-dialog p {
+            color: #d7ecff;
+            line-height: 1.7;
+            margin-bottom: 18px;
+        }
+
+        .confirm-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .confirm-btn,
+        .cancel-btn {
+            border: none;
+            border-radius: 10px;
+            padding: 10px 18px;
+            font-weight: 700;
+            cursor: pointer;
+            color: #fff;
+        }
+
+        .confirm-btn {
+            background: linear-gradient(135deg, #c62828, #ef5350);
+        }
+
+        .cancel-btn {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        @keyframes toast-in {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="toastStack" class="toast-stack"></div>
+
+    <main>
+        <h1>إدارة الصفوف والطلاب</h1>
+
+        <section class="form-card">
+            <div class="form-title" id="formTitle">إضافة صف جديد</div>
+
+            <div class="form-group">
+                <label for="className">اسم الصف</label>
+                <input type="text" id="className" placeholder="مثال: عاشر أ" maxlength="100">
+            </div>
+
+            <div class="form-group">
+                <label for="studentsList">أسماء الطلاب</label>
+                <textarea id="studentsList" placeholder="أدخل اسم كل طالب في سطر منفصل"></textarea>
+                <div class="helper">كل اسم في سطر مستقل</div>
+            </div>
+
+            <button class="save-btn" id="submitClassBtn" onclick="addClass()">حفظ</button>
+            <div id="message"></div>
+        </section>
+
+        <section class="list-card">
+            <div class="list-header">
+                <button class="list-toggle-btn" type="button" onclick="toggleClassesList()">
+                    <span class="list-title" style="margin:0;">الصفوف الموجودة</span>
+                    <span id="classesArrow" class="list-arrow">▶</span>
+                </button>
+            </div>
+            <div id="classesListContent" class="hidden">
+                <div id="classesContainer"></div>
+            </div>
+        </section>
+
+        <div class="back-home-wrap">
+            <button class="back-home-btn" type="button" onclick="goBackToDashboard()">🔙 رجوع للصفحة الرئيسية</button>
+        </div>
+    </main>
+
+    <div id="deleteConfirmModal" class="confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="deleteConfirmTitle">
+        <div class="confirm-dialog">
+            <h3 id="deleteConfirmTitle">تأكيد حذف الصف</h3>
+            <p id="deleteConfirmText">هل تريد حذف هذا الصف وجميع طلابه؟</p>
+            <div class="confirm-actions">
+                <button class="confirm-btn" type="button" onclick="confirmDeleteClass()">تأكيد الحذف</button>
+                <button class="cancel-btn" type="button" onclick="closeDeleteClassModal()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = (typeof API_BASE_URL !== 'undefined') ? API_BASE_URL : 'http://127.0.0.1:8000';
+        let editingClassId = null;
+        let classesCache = [];
+        let pendingDeleteClassId = null;
+
+        function getAuthToken() {
+            return localStorage.getItem('auth_token') || '';
+        }
+
+        function getCurrentUser() {
+            try {
+                const raw = localStorage.getItem('auth_user');
+                return raw ? JSON.parse(raw) : null;
+            } catch {
+                return null;
+            }
+        }
+
+        function getSelectedSchoolId() {
+            return localStorage.getItem('selected_school_id') || '1';
+        }
+
+        async function apiRequest(path, options = {}) {
+            const token = getAuthToken();
+            if (!token) {
+                throw new Error('جلسة الدخول غير موجودة. الرجاء تسجيل الدخول أولاً');
+            }
+
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                ...(options.headers || {})
+            };
+
+            const res = await fetch(`${API}${path}`, {
+                ...options,
+                headers
+            });
+
+            let data = null;
+            try {
+                data = await res.json();
+            } catch {
+                data = null;
+            }
+
+            if (!res.ok) {
+                const detail = data?.detail || `HTTP ${res.status}`;
+                throw new Error(detail);
+            }
+
+            return data;
+        }
+
+        function showMessage(element, text, type) {
+            if (type === 'success') {
+                showToast(text, type);
+                if (element) element.innerHTML = '';
+                return;
+            }
+
+            element.innerHTML = `<div class="message ${type}">${text}</div>`;
+            setTimeout(() => {
+                element.innerHTML = '';
+            }, 4000);
+        }
+
+        function showToast(text, type = 'success') {
+            const toastStack = document.getElementById('toastStack');
+            if (!toastStack) return;
+
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = text;
+            toastStack.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3200);
+        }
+
+        function resetForm() {
+            document.getElementById('className').value = '';
+            document.getElementById('studentsList').value = '';
+            editingClassId = null;
+            document.getElementById('formTitle').textContent = 'إضافة صف جديد';
+            document.getElementById('submitClassBtn').textContent = 'حفظ';
+        }
+
+        function toggleClassesList() {
+            const content = document.getElementById('classesListContent');
+            const arrow = document.getElementById('classesArrow');
+            if (!content || !arrow) return;
+
+            const isHidden = content.classList.contains('hidden');
+            if (isHidden) {
+                content.classList.remove('hidden');
+                arrow.textContent = '▼';
+            } else {
+                content.classList.add('hidden');
+                arrow.textContent = '▶';
+            }
+        }
+
+        function goBackToDashboard() {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({ type: 'madrasti:navigate', section: 'home' }, window.location.origin);
+                return;
+            }
+            window.location.href = '../dashboard.html';
+        }
+
+        async function loadClasses() {
+            const schoolId = getSelectedSchoolId();
+            classesCache = await apiRequest(`/classes?school_id=${encodeURIComponent(schoolId)}`);
+            renderClasses();
+        }
+
+        function renderClasses() {
+            const container = document.getElementById('classesContainer');
+
+            if (!classesCache || classesCache.length === 0) {
+                container.innerHTML = '<div class="empty-message">لا توجد صفوف مضافة حتى الآن</div>';
+                return;
+            }
+
+            container.innerHTML = `<div class="classes-grid">${classesCache.map((cls, index) => `
+                <div class="class-item">
+                    <div>
+                        <div class="class-name">${index + 1}. ${cls.name}</div>
+                        <div class="class-students">عدد الطلاب: ${cls.total_students || 0}</div>
+                    </div>
+                    <div class="class-actions">
+                        <button class="edit-btn" onclick="editClass(${cls.id})">تعديل</button>
+                        <button class="delete-btn" onclick="openDeleteClassModal(${cls.id})">حذف</button>
+                    </div>
+                </div>
+            `).join('')}</div>`;
+        }
+
+        function openDeleteClassModal(classId) {
+            pendingDeleteClassId = classId;
+            const modal = document.getElementById('deleteConfirmModal');
+            const cls = classesCache.find(item => item.id === classId);
+            const text = document.getElementById('deleteConfirmText');
+            if (text) {
+                text.textContent = cls
+                    ? `هل تريد حذف الصف "${cls.name}" وجميع طلابه؟`
+                    : 'هل تريد حذف هذا الصف وجميع طلابه؟';
+            }
+            if (modal) modal.classList.add('active');
+        }
+
+        function closeDeleteClassModal() {
+            pendingDeleteClassId = null;
+            const modal = document.getElementById('deleteConfirmModal');
+            if (modal) modal.classList.remove('active');
+        }
+
+        async function editClass(classId) {
+            try {
+                const cls = classesCache.find(c => c.id === classId);
+                if (!cls) return;
+
+                const data = await apiRequest(`/classes/${classId}/students`);
+                const studentsText = (data.students || [])
+                    .map(s => s.full_name || '')
+                    .filter(Boolean)
+                    .join('\n');
+
+                editingClassId = classId;
+                document.getElementById('className').value = cls.name || '';
+                document.getElementById('studentsList').value = studentsText;
+                document.getElementById('formTitle').textContent = `تعديل الصف: ${cls.name}`;
+                document.getElementById('submitClassBtn').textContent = 'حفظ التعديل';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch (error) {
+                showMessage(document.getElementById('message'), `✗ ${error.message}`, 'error');
+            }
+        }
+
+        async function addClass() {
+            const classNameInput = document.getElementById('className');
+            const studentsInput = document.getElementById('studentsList');
+            const messageDiv = document.getElementById('message');
+
+            const className = classNameInput.value.trim();
+            const students = studentsInput.value
+                .split('\n')
+                .map(name => name.trim())
+                .filter(Boolean);
+
+            if (!className) {
+                showMessage(messageDiv, 'الرجاء إدخال اسم الصف', 'error');
+                return;
+            }
+
+            if (students.length === 0) {
+                showMessage(messageDiv, 'الرجاء إدخال أسماء الطلاب', 'error');
+                return;
+            }
+
+            const payload = {
+                name: className,
+                students,
+                school_id: parseInt(getSelectedSchoolId(), 10)
+            };
+
+            try {
+                if (editingClassId) {
+                    await apiRequest(`/admin/classes/${editingClassId}`, {
+                        method: 'PUT',
+                        body: JSON.stringify(payload)
+                    });
+                    showMessage(messageDiv, `✓ تم تعديل الصف "${className}" بنجاح`, 'success');
+                } else {
+                    await apiRequest('/admin/classes', {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    });
+                    showMessage(messageDiv, `✓ تم إضافة الصف "${className}" بنجاح`, 'success');
+                }
+
+                resetForm();
+                await loadClasses();
+            } catch (error) {
+                showMessage(messageDiv, `✗ ${error.message}`, 'error');
+            }
+        }
+
+        async function deleteClass(classId) {
+            try {
+                const schoolId = getSelectedSchoolId();
+                await apiRequest(`/admin/classes/${classId}?school_id=${encodeURIComponent(schoolId)}`, {
+                    method: 'DELETE'
+                });
+
+                if (editingClassId === classId) {
+                    resetForm();
+                }
+
+                await loadClasses();
+                showMessage(document.getElementById('message'), '✓ تم حذف الصف بنجاح', 'success');
+            } catch (error) {
+                showMessage(document.getElementById('message'), `✗ ${error.message}`, 'error');
+            }
+        }
+
+        async function confirmDeleteClass() {
+            if (!pendingDeleteClassId) return;
+            const classId = pendingDeleteClassId;
+            closeDeleteClassModal();
+            await deleteClass(classId);
+        }
+
+        window.addEventListener('load', async () => {
+            const user = getCurrentUser();
+            const normalizedRole = String(user?.role || '').toLowerCase();
+            const normalizedRoleLabel = String(user?.role_label || '').toLowerCase();
+            const canAccess = normalizedRole === 'admin' || normalizedRoleLabel === 'principal' || normalizedRoleLabel === 'super_admin';
+
+            if (!user || !canAccess) {
+                showMessage(
+                    document.getElementById('message'),
+                    'هذه الصفحة مخصصة للإدارة فقط. الرجاء تسجيل الدخول بحساب إدارة.',
+                    'error'
+                );
+                return;
+            }
+
+            try {
+                await loadClasses();
+            } catch (error) {
+                showMessage(document.getElementById('message'), `✗ ${error.message}`, 'error');
+            }
+        });
+
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                addClass();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeDeleteClassModal();
+            }
+        });
+
+        document.getElementById('deleteConfirmModal').addEventListener('click', (e) => {
+            if (e.target.id === 'deleteConfirmModal') {
+                closeDeleteClassModal();
+            }
+        });
+    </script>
+</body>
+</html>

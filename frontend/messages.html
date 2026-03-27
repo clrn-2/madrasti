@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>الرسائل — مدرستي</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0a1929 0%, #1a237e 100%);
+      min-height: 100vh;
+      padding: 20px;
+      padding-bottom: 110px;
+      color: #fff;
+      direction: rtl;
+    }
+
+    .top-toolbar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .top-toolbar .toolbar-btn {
+      position: relative;
+      width: auto;
+      padding: 8px 14px;
+      border-radius: 10px;
+      background: rgba(100, 181, 246, 0.18);
+      border: 1px solid rgba(100, 181, 246, 0.35);
+      color: #e3f2fd;
+      font-size: 0.9em;
+    }
+
+    .settings-menu-wrap {
+      position: relative;
+    }
+
+    .settings-menu {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      min-width: 230px;
+      background: rgba(18, 40, 74, 0.98);
+      border: 1px solid rgba(100, 181, 246, 0.35);
+      border-radius: 12px;
+      padding: 8px;
+      display: none;
+      z-index: 1200;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    }
+
+    .settings-menu button {
+      width: 100%;
+      text-align: right;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(100, 181, 246, 0.2);
+      background: rgba(100, 181, 246, 0.12);
+      color: #e3f2fd;
+      margin-bottom: 6px;
+      font-size: 0.92em;
+    }
+
+    .settings-menu button:last-child {
+      margin-bottom: 0;
+    }
+
+    .toolbar-badge {
+      position: absolute;
+      top: -7px;
+      left: -7px;
+      min-width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      padding: 0 6px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75em;
+      font-weight: 700;
+      color: #fff;
+      background: linear-gradient(135deg, #ef5350, #e53935);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+    }
+
+    /* ── Page title ── */
+    .page-title {
+      font-size: 1.3em;
+      font-weight: 700;
+      color: #e8f4fd;
+      padding: 8px 4px 16px;
+      letter-spacing: 0.3px;
+    }
+
+    /* ── Search ── */
+    .search-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 14px;
+      border: 1px solid rgba(100,181,246,0.18);
+      margin-bottom: 16px;
+    }
+    .search-wrap input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #e8f4fd;
+      font-size: 14px;
+      font-family: inherit;
+      direction: rtl;
+    }
+    .search-wrap input::placeholder { color: #546e7a; }
+    .search-icon { font-size: 18px; color: #64b5f6; flex-shrink: 0; }
+
+    /* ── Session list ── */
+    .sessions-list { list-style: none; }
+
+    .session-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      margin-bottom: 6px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(100,181,246,0.1);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .session-item:hover { background: rgba(100,181,246,0.08); }
+
+    .session-avatar {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: #1565c0;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; color: #fff;
+      overflow: hidden; position: relative;
+    }
+    .session-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .online-dot {
+      position: absolute; bottom: 1px; left: 1px;
+      width: 11px; height: 11px;
+      border-radius: 50%; background: #4caf50;
+      border: 2px solid #0a1929;
+    }
+
+    .session-info { flex: 1; overflow: hidden; min-width: 0; }
+    .session-info .s-name {
+      font-size: 14px; font-weight: 600; color: #e8f4fd;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .session-info .s-sub {
+      font-size: 12px; color: #90a4ae; margin-top: 2px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .session-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+    .session-meta .s-time { font-size: 11px; color: #546e7a; }
+    .session-menu-wrap { position: relative; }
+    .session-menu-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid rgba(100,181,246,0.22);
+      background: rgba(100,181,246,0.1);
+      color: #e3f2fd;
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 1;
+    }
+    .session-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      min-width: 170px;
+      background: rgba(18, 40, 74, 0.98);
+      border: 1px solid rgba(100,181,246,0.28);
+      border-radius: 12px;
+      padding: 6px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+      z-index: 50;
+    }
+    .session-menu.hidden { display: none; }
+    .session-menu button {
+      width: 100%;
+      text-align: right;
+      padding: 10px 12px;
+      border: none;
+      border-radius: 10px;
+      background: transparent;
+      color: #e8f4fd;
+      cursor: pointer;
+      font-size: 0.92em;
+    }
+    .session-menu button:hover { background: rgba(100,181,246,0.1); }
+    .session-menu button.destructive { color: #ef5350; }
+    .session-unread-dot {
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #ef5350, #e53935);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      border: 2px solid #0a1929;
+    }
+
+    /* New-chat badge */
+    .new-chat-badge {
+      font-size: 11px; color: #64b5f6;
+      background: rgba(100,181,246,0.12);
+      padding: 2px 8px; border-radius: 8px;
+    }
+
+    /* ── States ── */
+    .empty-state { text-align: center; padding: 48px 24px; color: #90a4ae; }
+    .empty-state .icon { font-size: 52px; margin-bottom: 12px; }
+    .empty-state p { font-size: 14px; line-height: 1.6; }
+    .hidden { display: none !important; }
+    .loading-state { text-align: center; padding: 40px; color: #546e7a; font-size: 14px; }
+    .spinner {
+      width: 28px; height: 28px;
+      border: 3px solid rgba(100,181,246,0.2);
+      border-top-color: #64b5f6;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 16px auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Bottom Nav (same as dashboard) ── */
+    .bottom-nav {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(560px, calc(100% - 32px));
+      background: rgba(10, 25, 41, 0.92);
+      border: 1px solid rgba(100, 181, 246, 0.25);
+      backdrop-filter: blur(10px);
+      border-radius: 18px;
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      padding: 8px 10px;
+      z-index: 1000;
+    }
+    .bottom-nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      background: transparent;
+      border: none;
+      color: #90caf9;
+      font-size: 0.75em;
+      padding: 8px 6px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .bottom-nav-item.active {
+      color: #64b5f6;
+      background: rgba(100, 181, 246, 0.15);
+    }
+    .bottom-nav-icon { font-size: 1.2em; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed; bottom: 90px; left: 50%;
+      transform: translateX(-50%) translateY(12px);
+      background: #1a2d45; border: 1px solid rgba(100,181,246,0.2);
+      color: #e8f4fd; padding: 10px 20px;
+      border-radius: 20px; font-size: 13px;
+      opacity: 0; transition: opacity 0.25s, transform 0.25s;
+      pointer-events: none; z-index: 999;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 16px;
+    }
+    .modal-overlay.open {
+      display: flex;
+    }
+    .modal-card {
+      width: min(520px, 96vw);
+      background: rgba(18, 40, 74, 0.98);
+      border: 1px solid rgba(100,181,246,0.35);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .modal-title {
+      color: #90caf9;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .modal-actions button {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #1e88e5, #64b5f6);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1e88e5, #0d47a1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #fff;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .security-value {
+      color: #b0bec5;
+      font-size: 0.9em;
+      padding: 8px 10px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(100,181,246,0.15);
+      border-radius: 8px;
+    }
+    .confirm-modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(6, 15, 28, 0.72);
+      backdrop-filter: blur(6px);
+      z-index: 1450;
+      padding: 20px;
+    }
+    .confirm-modal.open { display: flex; }
+    .confirm-card {
+      width: min(360px, 100%);
+      background: linear-gradient(180deg, rgba(19, 44, 79, 0.98), rgba(12, 29, 52, 0.98));
+      border: 1px solid rgba(100,181,246,0.28);
+      border-radius: 20px;
+      padding: 22px 20px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+    }
+    .confirm-title { color: #fff; font-size: 1.1em; font-weight: 700; margin-bottom: 10px; }
+    .confirm-text { color: #cfe5ff; line-height: 1.7; margin-bottom: 16px; }
+    .confirm-actions { display:flex; gap:8px; flex-wrap:wrap; }
+    .confirm-actions button {
+      flex: 1 1 120px;
+      border: none;
+      border-radius: 12px;
+      padding: 11px 12px;
+      font-weight: 700;
+      cursor: pointer;
+      color: #fff;
+    }
+    .confirm-actions .cancel { background: rgba(255,255,255,0.14); }
+    .confirm-actions .approve { background: linear-gradient(135deg, #ef5350, #e53935); }
+  </style>
+</head>
+<body>
+
+<div class="top-toolbar">
+  <button id="toolbarBellBtn" class="toolbar-btn" type="button" aria-label="الإشعارات غير المقروءة" onclick="window.location.href='dashboard.html#notifications'">🔔 الإشعارات
+    <span id="notificationsBadge" class="toolbar-badge">0</span>
+  </button>
+  <div class="settings-menu-wrap">
+    <button id="settingsMenuBtn" class="toolbar-btn" onclick="toggleSettingsMenu(event)">⚙️ الإعدادات</button>
+    <div id="settingsMenu" class="settings-menu">
+      <button type="button" onclick="openProfileSettings()">👤 ملف التعريف</button>
+      <button type="button" onclick="openSecuritySettings()">🔒 إعدادات الأمان</button>
+      <button type="button" onclick="openBlockedUsers()">🚫 المحظورون</button>
+      <button type="button" onclick="contactSupportTeam()">🎧 تواصل مع فريق الدعم</button>
+    </div>
+  </div>
+  <button class="toolbar-btn" onclick="window.location.href='dashboard.html#friends'">👥 الأصدقاء</button>
+</div>
+
+<!-- Page title -->
+<div class="page-title">💬 الرسائل</div>
+
+<!-- Search -->
+<div class="search-wrap">
+  <span class="search-icon">🔎</span>
+  <input
+    type="search"
+    id="searchInput"
+    placeholder="ابحث عن محادثة أو مستخدم..."
+    oninput="onSearch(this.value)"
+    autocomplete="off"
+  />
+</div>
+
+<!-- Loading -->
+<div id="loadingState" class="loading-state">
+  <div class="spinner"></div>
+</div>
+
+<!-- Empty state for sessions (shown when no sessions at all) -->
+<div id="emptyState" class="empty-state hidden">
+  <div class="icon">💬</div>
+  <p>لا توجد محادثات بعد<br/><small>أضف أصدقاء للبدء في المحادثة</small></p>
+</div>
+
+<!-- Empty state for search (shown when no search results) -->
+<div id="searchEmptyState" class="empty-state hidden">
+  <div class="icon">🔍</div>
+  <p>لا يوجد مستخدم بهذا الاسم</p>
+</div>
+
+<!-- Sessions / Search results list -->
+<ul class="sessions-list" id="sessionsList"></ul>
+
+<div id="userProfileModal" class="modal-overlay" onclick="closeUserProfileModal(event)">
+  <div class="modal-card" onclick="event.stopPropagation()">
+    <div class="modal-title">الملف الشخصي</div>
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+      <div id="viewProfileAvatar" class="user-avatar" style="width:56px; height:56px; font-size:1.4em;">👤</div>
+      <div>
+        <div id="viewProfileName" style="font-weight:bold;"></div>
+        <div id="viewProfileRole" style="color:#90caf9;"></div>
+      </div>
+    </div>
+    <div id="viewProfileId" class="security-value" style="margin-bottom:8px;"></div>
+    <div id="viewProfileSchool" class="security-value" style="margin-bottom:8px;"></div>
+    <div id="viewProfilePhone" class="security-value" style="margin-bottom:8px;"></div>
+    <div class="modal-actions">
+      <button onclick="closeUserProfileModal()" style="background: rgba(244,67,54,0.25);">إغلاق</button>
+      <button onclick="sendFriendRequestFromProfile()" id="viewProfileAddFriendBtn">➕ طلب صداقة</button>
+      <button onclick="messageUserFromProfile()">💬 إرسال رسالة</button>
+      <button onclick="blockUserFromProfile()" style="background: rgba(244,67,54,0.35);">🚫 حظر</button>
+      <button onclick="removeFriendFromProfile()" id="viewProfileRemoveFriendBtn" style="background: rgba(255,255,255,0.12);">🗑 إزالة صديق</button>
+    </div>
+  </div>
+</div>
+
+<div id="confirmModal" class="confirm-modal" onclick="closeConfirmModal(false, event)">
+  <div class="confirm-card" onclick="event.stopPropagation()">
+    <div class="confirm-title">تأكيد الإجراء</div>
+    <div id="confirmText" class="confirm-text">هل أنت متأكد؟</div>
+    <div class="confirm-actions">
+      <button type="button" class="cancel" onclick="closeConfirmModal(false)">إلغاء</button>
+      <button type="button" class="approve" id="confirmApproveBtn" onclick="closeConfirmModal(true)">تأكيد</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Navigation — exact same as dashboard -->
+<nav class="bottom-nav">
+  <button class="bottom-nav-item" onclick="window.location.href='dashboard.html#home'">
+    <div class="bottom-nav-icon">🏠</div>
+    <div>الرئيسية</div>
+  </button>
+  <button class="bottom-nav-item" onclick="window.location.href='dashboard.html#search'">
+    <div class="bottom-nav-icon">🔎</div>
+    <div>البحث</div>
+  </button>
+  <button class="bottom-nav-item active">
+    <div class="bottom-nav-icon">💬</div>
+    <div>الرسائل</div>
+  </button>
+</nav>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  /* ── Config ── */
+  const API = (localStorage.getItem('api_base_url') || 'http://127.0.0.1:8000').replace(/\/$/, '');
+  const token = localStorage.getItem('auth_token');
+
+  if (!token) { window.location.replace('index.html'); }
+
+  /* ── State ── */
+  let allSessions = [];   // existing chat sessions
+  let allFriends  = [];   // full friends list (for search)
+  let statusMap   = {};
+  let dataLoaded  = false;
+  let viewedProfileUserId = null;
+  let activeSessionMenuId = null;
+  let confirmResolver = null;
+  const authUser = JSON.parse(localStorage.getItem('auth_user') || '{}');
+  const currentUserId = authUser.id || null;
+  const addedFriends = new Set();
+  const outgoingFriendRequests = new Set();
+  const outgoingRequestIdByUserId = new Map();
+  const incomingFriendRequests = new Set();
+  const seenIncomingRequestIds = new Set();
+  const unreadChatCountBySessionId = new Map();
+  const lastChatTimestampBySessionId = new Map();
+  const socialUserMeta = new Map();
+
+  /* ── Helpers ── */
+  function showToast(msg, duration = 3000) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._t);
+    t._t = setTimeout(() => t.classList.remove('show'), duration);
+  }
+
+  function apiFetch(path, opts = {}) {
+    return fetch(API + path, {
+      ...opts,
+      headers: {
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json',
+        ...(opts.headers || {}),
+      }
+    });
+  }
+
+  function getSocialStateStorageKey() {
+    return `madrasti_social_state_${currentUserId || 'guest'}`;
+  }
+
+  function savePersistedSocialState() {
+    if (!currentUserId) return;
+    let existingPayload = {};
+    try {
+      existingPayload = JSON.parse(localStorage.getItem(getSocialStateStorageKey()) || '{}') || {};
+    } catch (_) {
+      existingPayload = {};
+    }
+    const payload = {
+      ...existingPayload,
+      unreadChatCounts: Object.fromEntries(unreadChatCountBySessionId.entries()),
+      lastChatTimestamps: Object.fromEntries(lastChatTimestampBySessionId.entries()),
+      seenIncomingRequestIds: Array.from(seenIncomingRequestIds),
+    };
+    localStorage.setItem(getSocialStateStorageKey(), JSON.stringify(payload));
+  }
+
+  function loadPersistedSocialState() {
+    if (!currentUserId) return;
+    try {
+      const parsed = JSON.parse(localStorage.getItem(getSocialStateStorageKey()) || '{}') || {};
+      unreadChatCountBySessionId.clear();
+      Object.entries(parsed.unreadChatCounts || {}).forEach(([key, value]) => {
+        const count = Number(value || 0);
+        if (count > 0) unreadChatCountBySessionId.set(String(key), count);
+      });
+      lastChatTimestampBySessionId.clear();
+      Object.entries(parsed.lastChatTimestamps || {}).forEach(([key, value]) => {
+        if (value) lastChatTimestampBySessionId.set(String(key), String(value));
+      });
+      seenIncomingRequestIds.clear();
+      (parsed.seenIncomingRequestIds || []).forEach((id) => {
+        if (id != null) seenIncomingRequestIds.add(String(id));
+      });
+    } catch (_) {
+      unreadChatCountBySessionId.clear();
+      lastChatTimestampBySessionId.clear();
+      seenIncomingRequestIds.clear();
+    }
+  }
+
+  function updateNotificationsBadge() {
+    const badge = document.getElementById('notificationsBadge');
+    if (!badge) return;
+    const unseenIncoming = Array.from(incomingFriendRequests).filter(id => !seenIncomingRequestIds.has(String(id))).length;
+    badge.textContent = String(unseenIncoming);
+    badge.style.display = unseenIncoming > 0 ? 'inline-flex' : 'none';
+  }
+
+  function formatPublicIdLabel(publicId) {
+    const value = String(publicId || '').trim();
+    return value ? `ID: ${value}` : 'ID: -';
+  }
+
+  function getUserMetaById(userId) {
+    return socialUserMeta.get(String(userId)) || null;
+  }
+
+  function markChatSessionAsRead(sessionId) {
+    if (!sessionId) return;
+    unreadChatCountBySessionId.delete(String(sessionId));
+    savePersistedSocialState();
+  }
+
+  function openConfirmModal(message, approveText = 'تأكيد') {
+    const modal = document.getElementById('confirmModal');
+    const textEl = document.getElementById('confirmText');
+    const approveBtn = document.getElementById('confirmApproveBtn');
+    if (!modal || !textEl || !approveBtn) return Promise.resolve(false);
+    textEl.textContent = message || 'هل أنت متأكد؟';
+    approveBtn.textContent = approveText;
+    modal.classList.add('open');
+    return new Promise((resolve) => {
+      confirmResolver = resolve;
+    });
+  }
+
+  function closeConfirmModal(confirmed, event) {
+    if (event && event.target !== event.currentTarget) return;
+    const modal = document.getElementById('confirmModal');
+    if (modal) modal.classList.remove('open');
+    if (confirmResolver) {
+      const resolve = confirmResolver;
+      confirmResolver = null;
+      resolve(Boolean(confirmed));
+    }
+  }
+
+  function closeSessionMenus() {
+    document.querySelectorAll('.session-menu').forEach((menu) => menu.classList.add('hidden'));
+    activeSessionMenuId = null;
+  }
+
+  function toggleSessionMenu(sessionId, event) {
+    event?.stopPropagation();
+    const menu = document.getElementById(`sessionMenu-${sessionId}`);
+    if (!menu) return;
+    const shouldOpen = activeSessionMenuId !== String(sessionId) || menu.classList.contains('hidden');
+    closeSessionMenus();
+    if (shouldOpen) {
+      menu.classList.remove('hidden');
+      activeSessionMenuId = String(sessionId);
+    }
+  }
+
+  function closeSettingsMenu() {
+    const menu = document.getElementById('settingsMenu');
+    if (menu) menu.style.display = 'none';
+  }
+
+  function toggleSettingsMenu(event) {
+    event?.stopPropagation();
+    const menu = document.getElementById('settingsMenu');
+    if (!menu) return;
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+  }
+
+  function openProfileSettings() {
+    closeSettingsMenu();
+    window.location.href = 'profile_settings.html';
+  }
+
+  function openSecuritySettings() {
+    closeSettingsMenu();
+    window.location.href = 'security_settings.html';
+  }
+
+  function contactSupportTeam() {
+    closeSettingsMenu();
+    window.location.href = 'support_team.html';
+  }
+
+  function openBlockedUsers() {
+    closeSettingsMenu();
+    window.location.href = 'blocked_users.html';
+  }
+
+  function escapeHtml(str) {
+    return String(str || '')
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function formatTime(isoStr) {
+    if (!isoStr) return '';
+    const d = new Date(isoStr), now = new Date();
+    const diffDays = Math.floor((now - d) / 86400000);
+    if (diffDays === 0) return d.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+    if (diffDays === 1) return 'أمس';
+    if (diffDays < 7)  return d.toLocaleDateString('ar-SA', { weekday: 'short' });
+    return d.toLocaleDateString('ar-SA', { day: 'numeric', month: 'short' });
+  }
+
+  function avatarInner(name, profileImage) {
+    if (profileImage) return `<img src="${escapeHtml(profileImage)}" onerror="this.style.display='none'" />`;
+    return `<span>${escapeHtml((name || '؟').charAt(0))}</span>`;
+  }
+
+  function getRoleLabelFromRaw(role) {
+    const value = String(role || '').trim().toLowerCase();
+    if (!value) return 'معلم';
+    if (value === 'teacher' || value === 'معلم') return 'معلم';
+    if (value === 'parent' || value === 'ولي أمر') return 'ولي أمر';
+    if (value === 'student' || value === 'طالب') return 'طالب';
+    if (value === 'admin' || value === 'مدير') return 'مدير';
+    return String(role || '').trim();
+  }
+
+  function normalizeSpecialization(value) {
+    const normalized = String(value || '').trim();
+    if (!normalized || normalized === '-' || normalized === 'غير محدد') return '';
+    return normalized;
+  }
+
+  function getRoleWithSpecialization(role, specialization) {
+    const roleLabel = getRoleLabelFromRaw(role);
+    const cleanSpecialization = normalizeSpecialization(specialization);
+    return cleanSpecialization ? `${roleLabel} - ${cleanSpecialization}` : roleLabel;
+  }
+
+  function getSessionSubtitle(session) {
+    const roleLine = getRoleWithSpecialization(session.partner_role_label || 'teacher', session.partner_specialization);
+    const lastMessageRaw = typeof session.last_message === 'string'
+      ? session.last_message
+      : (session.last_message && typeof session.last_message === 'object'
+        ? String(session.last_message.content || session.last_message.text || '')
+        : String(session.last_message || ''));
+    const lastMessage = lastMessageRaw.startsWith('ATTACHMENT|') ? 'مرفق' : lastMessageRaw.trim();
+    return lastMessage ? `${roleLine} • ${lastMessage}` : roleLine;
+  }
+
+  async function openUserProfileModal(userId) {
+    if (!userId) return;
+
+    const modal = document.getElementById('userProfileModal');
+    document.getElementById('viewProfileAvatar').textContent = '...';
+    document.getElementById('viewProfileName').textContent = 'جاري التحميل...';
+    document.getElementById('viewProfileRole').textContent = '';
+    document.getElementById('viewProfileId').textContent = '🆔 ID: -';
+    document.getElementById('viewProfileSchool').textContent = '🏫 -';
+    document.getElementById('viewProfilePhone').textContent = '📞 -';
+    modal.classList.add('open');
+
+    try {
+      const resp = await apiFetch(`/users/${userId}/profile`);
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok) throw new Error(data.detail || 'تعذر تحميل الملف الشخصي');
+
+      viewedProfileUserId = String(userId);
+      document.getElementById('viewProfileAvatar').innerHTML = avatarInner(data.full_name, data.profile_image);
+      document.getElementById('viewProfileName').textContent = data.full_name || '-';
+      document.getElementById('viewProfileRole').textContent = getRoleWithSpecialization(data.role_label || 'teacher', data.specialization);
+      document.getElementById('viewProfileId').textContent = `🆔 ${formatPublicIdLabel(data.public_id)}`;
+      document.getElementById('viewProfileSchool').textContent = `🏫 ${data.school_name || '-'}`;
+      document.getElementById('viewProfilePhone').textContent = `📞 ${data.phone || '-'}`;
+      const addBtn = document.getElementById('viewProfileAddFriendBtn');
+      const removeBtn = document.getElementById('viewProfileRemoveFriendBtn');
+      const isFriend = addedFriends.has(String(userId));
+      const isPending = outgoingFriendRequests.has(String(userId));
+      if (addBtn) {
+        addBtn.disabled = isFriend;
+        addBtn.textContent = isFriend ? 'تمت الإضافة' : (isPending ? 'تم إرسال الطلب' : 'إضافة صديق ➕');
+      }
+      if (removeBtn) removeBtn.disabled = !isFriend;
+    } catch (error) {
+      closeUserProfileModal();
+      showToast(error.message || 'تعذر تحميل الملف الشخصي');
+    }
+  }
+
+  function closeUserProfileModal(event) {
+    if (event && event.target !== event.currentTarget) return;
+    viewedProfileUserId = null;
+    document.getElementById('userProfileModal').classList.remove('open');
+  }
+
+  /* ── Render session list ── */
+  function renderSessions(sessions) {
+    const list  = document.getElementById('sessionsList');
+    const empty = document.getElementById('emptyState');
+    list.innerHTML = '';
+
+    if (sessions.length === 0) {
+      empty.classList.remove('hidden');
+      return;
+    }
+    empty.classList.add('hidden');
+
+    sessions.forEach(s => {
+      const isOnline = statusMap[s.partner_id];
+      const unreadCount = Number(unreadChatCountBySessionId.get(String(s.session_id)) || 0);
+      const li = document.createElement('li');
+      li.className = 'session-item';
+      li.onclick = () => goToSession(s.session_id, s.partner_id, s.partner_name);
+      li.innerHTML = `
+        <div class="session-avatar" onclick="event.stopPropagation(); openUserProfileModal(${Number(s.partner_id)})">
+          ${avatarInner(s.partner_name, s.partner_profile_image)}
+          ${unreadCount > 0 ? `<span class="session-unread-dot">${unreadCount > 9 ? '9+' : unreadCount}</span>` : ''}
+          ${isOnline ? '<span class="online-dot"></span>' : ''}
+        </div>
+        <div class="session-info">
+          <div class="s-name">${escapeHtml(s.partner_name || 'مستخدم')} <span style="color:#b0bec5; font-size:0.82em;">• ${escapeHtml(formatPublicIdLabel(s.partner_public_id))}</span></div>
+          <div class="s-sub">${escapeHtml(getSessionSubtitle(s))}</div>
+        </div>
+        <div class="session-meta">
+          <span class="s-time">${formatTime(s.last_message_at)}</span>
+          <div class="session-menu-wrap">
+            <button type="button" class="session-menu-btn" onclick="toggleSessionMenu('${s.session_id}', event)">⋮</button>
+            <div id="sessionMenu-${s.session_id}" class="session-menu hidden">
+              <button type="button" onclick="toggleSessionMute('${s.session_id}')">${s.is_muted ? '🔔 إلغاء كتم الإشعارات' : '🔕 كتم الإشعارات'}</button>
+              <button type="button" class="destructive" onclick="deleteSessionMessages('${s.session_id}')">🗑 حذف المحادثة</button>
+            </div>
+          </div>
+        </div>
+      `;
+      list.appendChild(li);
+    });
+  }
+
+  /* ── Render search results (API-backed) ── */
+  let searchDebounce = null;
+  async function renderSearchResults(query) {
+    const list        = document.getElementById('sessionsList');
+    const emptyState  = document.getElementById('emptyState');
+    const searchEmpty = document.getElementById('searchEmptyState');
+    list.innerHTML = '';
+    emptyState.classList.add('hidden');
+    searchEmpty.classList.add('hidden');
+
+    let users = [];
+    try {
+      const params = new URLSearchParams({ q: query });
+      const resp = await apiFetch(`/users/search?${params}`);
+      if (resp.ok) users = await resp.json();
+    } catch (_) {}
+
+    // Build map of existing sessions by partner_id for fast look-up
+    const sessionByPartnerId = {};
+    allSessions.forEach(s => { sessionByPartnerId[s.partner_id] = s; });
+
+    if (users.length === 0) {
+      searchEmpty.classList.remove('hidden');
+      return;
+    }
+
+    users.forEach(u => {
+      const existingSession = sessionByPartnerId[u.id];
+      const li = document.createElement('li');
+      li.className = 'session-item';
+
+      if (existingSession) {
+        li.onclick = () => goToSession(existingSession.session_id, u.id, u.full_name);
+        li.innerHTML = `
+          <div class="session-avatar" onclick="event.stopPropagation(); openUserProfileModal(${Number(u.id)})">
+            ${avatarInner(u.full_name, u.profile_image)}
+            ${Number(unreadChatCountBySessionId.get(String(existingSession.session_id)) || 0) > 0 ? `<span class="session-unread-dot">${Math.min(Number(unreadChatCountBySessionId.get(String(existingSession.session_id)) || 0), 9)}${Number(unreadChatCountBySessionId.get(String(existingSession.session_id)) || 0) > 9 ? '+' : ''}</span>` : ''}
+            ${statusMap[u.id] ? '<span class="online-dot"></span>' : ''}
+          </div>
+          <div class="session-info">
+            <div class="s-name">${escapeHtml(u.full_name || 'مستخدم')} <span style="color:#b0bec5; font-size:0.82em;">• ${escapeHtml(formatPublicIdLabel(u.public_id || existingSession.partner_public_id))}</span></div>
+            <div class="s-sub">${escapeHtml(getRoleWithSpecialization(u.role_label || existingSession.partner_role_label || 'teacher', u.specialization || existingSession.partner_specialization))}</div>
+          </div>
+          <div class="session-meta">
+            <span class="s-time">${formatTime(existingSession.last_message_at)}</span>
+          </div>
+        `;
+      } else {
+        li.onclick = () => startChatWithFriend(u.id, u.full_name);
+        li.innerHTML = `
+          <div class="session-avatar" onclick="event.stopPropagation(); openUserProfileModal(${Number(u.id)})">${avatarInner(u.full_name, u.profile_image)}</div>
+          <div class="session-info">
+            <div class="s-name">${escapeHtml(u.full_name || 'مستخدم')} <span style="color:#b0bec5; font-size:0.82em;">• ${escapeHtml(formatPublicIdLabel(u.public_id))}</span></div>
+            <div class="s-sub">${escapeHtml(getRoleWithSpecialization(u.role_label || u.role || 'teacher', u.specialization))}</div>
+          </div>
+          <div class="session-meta">
+            <span class="new-chat-badge">+ محادثة</span>
+          </div>
+        `;
+      }
+      list.appendChild(li);
+    });
+  }
+
+  async function sendFriendRequestFromProfile() {
+    if (!viewedProfileUserId) return;
+    const userKey = String(viewedProfileUserId);
+    if (outgoingFriendRequests.has(userKey)) {
+      const requestId = outgoingRequestIdByUserId.get(userKey);
+      if (!requestId) {
+        showToast('تعذر العثور على طلب الصداقة لإلغائه');
+        return;
+      }
+      const approved = await openConfirmModal('هل تريد إلغاء طلب الصداقة؟', 'إلغاء الطلب');
+      if (!approved) return;
+      try {
+        const cancelResp = await apiFetch(`/friends/requests/${requestId}`, { method: 'DELETE' });
+        const cancelData = await cancelResp.json().catch(() => ({}));
+        if (!cancelResp.ok) throw new Error(cancelData.detail || 'فشل إلغاء طلب الصداقة');
+        outgoingFriendRequests.delete(userKey);
+        outgoingRequestIdByUserId.delete(userKey);
+        const addBtn = document.getElementById('viewProfileAddFriendBtn');
+        if (addBtn) {
+          addBtn.disabled = false;
+          addBtn.textContent = 'إضافة صديق ➕';
+        }
+        await loadData();
+        showToast('تم إلغاء طلب الصداقة');
+      } catch (error) {
+        showToast(error.message || 'تعذر إلغاء طلب الصداقة');
+      }
+      return;
+    }
+    try {
+      const resp = await apiFetch('/friends/requests', {
+        method: 'POST',
+        body: JSON.stringify({ receiver_id: Number(viewedProfileUserId) })
+      });
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok) throw new Error(data.detail || 'فشل إرسال طلب الصداقة');
+      outgoingFriendRequests.add(userKey);
+      if (data.request_id) outgoingRequestIdByUserId.set(userKey, Number(data.request_id));
+      const addBtn = document.getElementById('viewProfileAddFriendBtn');
+      if (addBtn) {
+        addBtn.disabled = false;
+        addBtn.textContent = 'تم إرسال الطلب';
+      }
+      showToast('تم إرسال طلب الصداقة بنجاح');
+    } catch (error) {
+      showToast(error.message || 'تعذر إرسال طلب الصداقة');
+    }
+  }
+
+  async function messageUserFromProfile() {
+    if (!viewedProfileUserId) return;
+    const targetId = Number(viewedProfileUserId);
+    const meta = getUserMetaById(viewedProfileUserId);
+    closeUserProfileModal();
+    await startChatWithFriend(targetId, meta?.full_name || meta?.name || 'مستخدم');
+  }
+
+  async function blockUserFromProfile() {
+    if (!viewedProfileUserId) return;
+    const approved = await openConfirmModal('هل تريد حظر هذا المستخدم؟', 'حظر');
+    if (!approved) return;
+    try {
+      const resp = await apiFetch(`/users/${viewedProfileUserId}/block`, { method: 'POST' });
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok) throw new Error(data.detail || 'فشل حظر المستخدم');
+      closeUserProfileModal();
+      await loadData();
+      showToast('تم حظر المستخدم بنجاح');
+    } catch (error) {
+      showToast(error.message || 'تعذر حظر المستخدم');
+    }
+  }
+
+  async function removeFriendFromProfile() {
+    if (!viewedProfileUserId || !addedFriends.has(String(viewedProfileUserId))) return;
+    const approved = await openConfirmModal('هل تريد إزالة هذا المستخدم من قائمة أصدقائك؟', 'إزالة صديق');
+    if (!approved) return;
+    try {
+      const resp = await apiFetch(`/friends/${viewedProfileUserId}`, { method: 'DELETE' });
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok) throw new Error(data.detail || 'فشل إزالة الصديق');
+      addedFriends.delete(String(viewedProfileUserId));
+      const addBtn = document.getElementById('viewProfileAddFriendBtn');
+      const removeBtn = document.getElementById('viewProfileRemoveFriendBtn');
+      if (addBtn) {
+        addBtn.disabled = false;
+        addBtn.textContent = 'إضافة صديق ➕';
+      }
+      if (removeBtn) removeBtn.disabled = true;
+      await loadData();
+      showToast('تمت إزالة الصديق بنجاح');
+    } catch (error) {
+      showToast(error.message || 'تعذر إزالة الصديق');
+    }
+  }
+
+  /* ── Search handler ── */
+  function onSearch(value) {
+    const q = value.trim();
+    clearTimeout(searchDebounce);
+    if (!q) {
+      document.getElementById('searchEmptyState').classList.add('hidden');
+      renderSessions(allSessions);
+      return;
+    }
+    searchDebounce = setTimeout(() => renderSearchResults(q), 300);
+  }
+
+  /* ── Navigation ── */
+  function goToSession(sessionId, partnerId, partnerName) {
+    markChatSessionAsRead(sessionId);
+    window.location.href = `chat.html?session=${sessionId}&partner=${partnerId}&name=${encodeURIComponent(partnerName)}`;
+  }
+
+  async function toggleSessionMute(sessionId) {
+    closeSessionMenus();
+    const session = allSessions.find((item) => String(item.session_id) === String(sessionId));
+    if (!session) return;
+    try {
+      const resp = await apiFetch(`/chat/sessions/${sessionId}/mute`, {
+        method: 'POST',
+        body: JSON.stringify({ is_muted: !session.is_muted })
+      });
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok) throw new Error(data.detail || 'فشل تحديث كتم الإشعارات');
+      session.is_muted = !!data.is_muted;
+      renderSessions(allSessions);
+      showToast(session.is_muted ? 'تم كتم إشعارات المحادثة' : 'تم إلغاء كتم إشعارات المحادثة');
+    } catch (error) {
+      showToast(error.message || 'تعذر تحديث الكتم');
+    }
+  }
+
+  async function deleteSessionMessages(sessionId) {
+    closeSessionMenus();
+    const approved = await openConfirmModal('هل تريد حذف جميع الرسائل داخل هذه المحادثة فقط مع إبقاء المحادثة موجودة؟', 'حذف الرسائل');
+    if (!approved) return;
+    try {
+      const resp = await apiFetch(`/chat/sessions/${sessionId}`, { method: 'DELETE' });
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok) throw new Error(data.detail || 'فشل حذف المحادثة');
+      const session = allSessions.find((item) => String(item.session_id) === String(sessionId));
+      if (session) {
+        session.last_message = '';
+        session.last_message_at = null;
+      }
+      markChatSessionAsRead(sessionId);
+      renderSessions(allSessions);
+      showToast('تم حذف رسائل المحادثة مع إبقاء المحادثة');
+    } catch (error) {
+      showToast(error.message || 'تعذر حذف رسائل المحادثة');
+    }
+  }
+
+  async function startChatWithFriend(userId, name) {
+    try {
+      const resp = await apiFetch(`/chat/sessions/with/${userId}`, { method: 'POST' });
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok) { showToast(data.detail || 'تعذر فتح المحادثة'); return; }
+      window.location.href = `chat.html?session=${data.session_id}&partner=${userId}&name=${encodeURIComponent(name)}`;
+    } catch (_) {
+      showToast('تعذر الاتصال بالخادم');
+    }
+  }
+
+  /* ── Data loading ── */
+  async function loadData() {
+    try {
+      loadPersistedSocialState();
+
+      const [sessResp, friendsResp, incomingResp, outgoingResp] = await Promise.all([
+        apiFetch('/chat/sessions'),
+        apiFetch('/friends/list'),
+        apiFetch('/friends/requests/incoming'),
+        apiFetch('/friends/requests/outgoing'),
+      ]);
+
+      if (sessResp.ok) {
+        const d = await sessResp.json();
+        allSessions = d.sessions || [];
+      }
+      if (friendsResp.ok) {
+        const d = await friendsResp.json();
+        allFriends = d.friends || [];
+      }
+
+      const incomingData = incomingResp.ok ? await incomingResp.json() : [];
+      const outgoingData = outgoingResp.ok ? await outgoingResp.json() : [];
+
+      addedFriends.clear();
+      incomingFriendRequests.clear();
+      outgoingFriendRequests.clear();
+      outgoingRequestIdByUserId.clear();
+      socialUserMeta.clear();
+
+      (allFriends || []).forEach((friend) => {
+        const key = String(friend.user_id);
+        addedFriends.add(key);
+        socialUserMeta.set(key, {
+          id: key,
+          public_id: friend.public_id || '',
+          full_name: friend.full_name,
+          role_label: friend.role_label || 'teacher',
+          specialization: friend.specialization || '',
+          profile_image: friend.profile_image || ''
+        });
+      });
+
+      (incomingData || []).forEach((item) => {
+        const key = String(item.user_id);
+        incomingFriendRequests.add(key);
+        socialUserMeta.set(key, {
+          id: key,
+          public_id: item.public_id || '',
+          full_name: item.full_name,
+          role_label: item.role_label || 'teacher',
+          specialization: item.specialization || '',
+          profile_image: item.profile_image || ''
+        });
+      });
+
+      (outgoingData || []).forEach((item) => {
+        const key = String(item.user_id);
+        outgoingFriendRequests.add(key);
+        if (item.request_id != null) outgoingRequestIdByUserId.set(key, Number(item.request_id));
+        socialUserMeta.set(key, {
+          id: key,
+          public_id: item.public_id || '',
+          full_name: item.full_name,
+          role_label: item.role_label || 'teacher',
+          specialization: item.specialization || '',
+          profile_image: item.profile_image || ''
+        });
+      });
+
+      const currentIncomingIds = new Set((incomingData || []).map((item) => String(item.user_id)));
+      Array.from(seenIncomingRequestIds).forEach((id) => {
+        if (!currentIncomingIds.has(String(id))) seenIncomingRequestIds.delete(String(id));
+      });
+
+      allSessions.forEach((session) => {
+        const sessionKey = String(session.session_id);
+        const userKey = String(session.partner_id);
+        const previousTimestamp = lastChatTimestampBySessionId.get(sessionKey);
+        if (
+          session.last_message_at &&
+          previousTimestamp &&
+          previousTimestamp !== session.last_message_at &&
+          String(session.last_message_sender_id || '') !== String(currentUserId) &&
+          !session.is_muted
+        ) {
+          unreadChatCountBySessionId.set(sessionKey, Number(unreadChatCountBySessionId.get(sessionKey) || 0) + 1);
+        }
+        if (session.last_message_at) lastChatTimestampBySessionId.set(sessionKey, session.last_message_at);
+        socialUserMeta.set(userKey, {
+          id: userKey,
+          public_id: session.partner_public_id || '',
+          full_name: session.partner_name,
+          role_label: session.partner_role_label || 'teacher',
+          specialization: session.partner_specialization || '',
+          profile_image: session.partner_profile_image || ''
+        });
+      });
+
+      savePersistedSocialState();
+      updateNotificationsBadge();
+
+      // Load statuses
+      const ids = allSessions.map(s => s.partner_id);
+      if (ids.length) {
+        const results = await Promise.all(
+          ids.map(id => apiFetch(`/users/${id}/status`).then(r => r.ok ? r.json() : null).catch(() => null))
+        );
+        statusMap = {};
+        results.forEach(r => { if (r) statusMap[r.user_id] = r.online; });
+      }
+
+      document.getElementById('loadingState').classList.add('hidden');
+      dataLoaded = true;
+
+      // If user is currently searching, re-run search; otherwise show sessions
+      const q = document.getElementById('searchInput').value.trim();
+      if (q) renderSearchResults(q);
+      else renderSessions(allSessions);
+
+    } catch (err) {
+      document.getElementById('loadingState').innerHTML =
+        `<p style="color:#ef5350;text-align:center;padding:20px">خطأ في تحميل البيانات</p>`;
+    }
+  }
+
+  async function heartbeat() {
+    try { await apiFetch('/users/status/online', { method: 'POST' }); } catch (_) {}
+  }
+
+  /* ── Init ── */
+  loadData();
+  heartbeat();
+  setInterval(heartbeat, 30000);
+  setInterval(loadData, 15000);
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) { loadData(); heartbeat(); }
+  });
+
+  document.addEventListener('click', (event) => {
+    const wrap = document.querySelector('.settings-menu-wrap');
+    if (wrap && !wrap.contains(event.target)) closeSettingsMenu();
+    if (!event.target.closest('.session-menu-wrap')) closeSessionMenus();
+  });
+
+  window.addEventListener('storage', (event) => {
+    if (event.key === getSocialStateStorageKey()) {
+      loadPersistedSocialState();
+      updateNotificationsBadge();
+      const q = document.getElementById('searchInput').value.trim();
+      if (q) renderSearchResults(q);
+      else renderSessions(allSessions);
+    }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      closeSessionMenus();
+      closeConfirmModal(false);
+      closeUserProfileModal();
+    }
+  });
+</script>
+</body>
+</html>

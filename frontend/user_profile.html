@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>مدرستي - الملف الشخصي</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0a1929 0%, #1a237e 100%);
+      color: #fff;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .shell {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .topbar button {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      background: rgba(100,181,246,0.18);
+      color: #e3f2fd;
+      cursor: pointer;
+    }
+    .card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(100,181,246,0.25);
+      border-radius: 18px;
+      padding: 24px;
+      backdrop-filter: blur(10px);
+    }
+    .hero {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    .avatar {
+      width: 82px;
+      height: 82px;
+      border-radius: 50%;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: #1565c0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      border: 2px solid rgba(100,181,246,0.45);
+    }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .name { font-size: 1.4em; font-weight: 700; color: #e8f4fd; }
+    .role { color: #90caf9; margin-top: 4px; }
+    .meta-list { display: grid; gap: 12px; margin-top: 18px; }
+    .meta-item {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(100,181,246,0.16);
+      border-radius: 12px;
+      padding: 14px;
+    }
+    .meta-label { color: #90caf9; font-size: 0.9em; margin-bottom: 6px; }
+    .meta-value { color: #fff; word-break: break-word; }
+    .actions { display: flex; gap: 10px; margin-top: 20px; }
+    .actions button {
+      flex: 1;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 14px;
+      cursor: pointer;
+      color: #fff;
+      background: linear-gradient(135deg, #1976d2, #64b5f6);
+    }
+    .app-toast {
+      position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+      padding: 12px 28px; border-radius: 14px; font-size: 1em;
+      color: #fff; z-index: 99999; opacity: 0; transition: opacity .3s;
+      pointer-events: none; text-align: center; max-width: 90vw;
+    }
+    .app-toast.show { opacity: 1; }
+    .app-toast.info    { background: rgba(33,150,243,0.92); }
+    .app-toast.success { background: rgba(76,175,80,0.92); }
+    .app-toast.error   { background: rgba(244,67,54,0.92); }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar">
+      <button type="button" onclick="history.back()">⬅ رجوع</button>
+    </div>
+    <div class="card">
+      <div class="hero">
+        <div class="avatar" id="avatar">؟</div>
+        <div>
+          <div class="name" id="fullName">جاري التحميل...</div>
+          <div class="role" id="roleLabel">-</div>
+        </div>
+      </div>
+      <div class="meta-list">
+        <div class="meta-item"><div class="meta-label">🆔 رقم المستخدم</div><div class="meta-value" id="publicId">-</div></div>
+        <div class="meta-item"><div class="meta-label">🏫 المدرسة</div><div class="meta-value" id="schoolName">-</div></div>
+        <div class="meta-item"><div class="meta-label">📧 البريد الإلكتروني</div><div class="meta-value" id="email">-</div></div>
+        <div class="meta-item"><div class="meta-label">📞 الهاتف</div><div class="meta-value" id="phone">-</div></div>
+        <div class="meta-item"><div class="meta-label">📚 التخصص</div><div class="meta-value" id="specialization">-</div></div>
+      </div>
+      <div class="actions">
+        <button type="button" id="messageBtn">💬 إرسال رسالة</button>
+      </div>
+    </div>
+  </div>
+  <div id="appToast" class="app-toast info"></div>
+  <script>
+    function showAppToast(msg, type = 'info', duration = 3000) {
+      const t = document.getElementById('appToast');
+      if (!t) return;
+      t.textContent = msg;
+      t.className = 'app-toast ' + type + ' show';
+      clearTimeout(t._tid);
+      t._tid = setTimeout(() => t.classList.remove('show'), duration);
+    }
+
+    const API = (localStorage.getItem('api_base_url') || 'http://127.0.0.1:8000').replace(/\/$/, '');
+    const token = localStorage.getItem('auth_token');
+    const params = new URLSearchParams(window.location.search);
+    const userId = params.get('id');
+
+    if (!token) window.location.replace('index.html');
+    if (!userId) history.back();
+
+    function apiFetch(path, opts = {}) {
+      return fetch(API + path, {
+        ...opts,
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json',
+          ...(opts.headers || {}),
+        }
+      });
+    }
+
+    async function openChatWithUser() {
+      const resp = await apiFetch(`/chat/sessions/with/${encodeURIComponent(userId)}`, { method: 'POST' });
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok) {
+        showAppToast(data.detail || 'تعذر فتح المحادثة', 'error');
+        return;
+      }
+      window.location.href = `chat.html?session=${data.session_id}&partner=${encodeURIComponent(userId)}&name=${encodeURIComponent(document.getElementById('fullName').textContent || 'مستخدم')}`;
+    }
+
+    document.getElementById('messageBtn').addEventListener('click', openChatWithUser);
+
+    async function loadProfile() {
+      const resp = await apiFetch(`/users/${encodeURIComponent(userId)}/profile`);
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok) {
+        showAppToast(data.detail || 'تعذر تحميل الملف الشخصي', 'error');
+        history.back();
+        return;
+      }
+
+      document.getElementById('fullName').textContent = data.full_name || '-';
+      document.getElementById('roleLabel').textContent = data.role_label || '-';
+      document.getElementById('publicId').textContent = data.public_id || '-';
+      document.getElementById('schoolName').textContent = data.school_name || '-';
+      document.getElementById('email').textContent = data.email || '-';
+      document.getElementById('phone').textContent = data.phone || '-';
+      document.getElementById('specialization').textContent = data.specialization || '-';
+
+      const avatar = document.getElementById('avatar');
+      if (data.profile_image) {
+        avatar.innerHTML = `<img src="${data.profile_image}" alt="${data.full_name || 'مستخدم'}">`;
+      } else {
+        avatar.textContent = (data.full_name || '؟').charAt(0);
+      }
+    }
+
+    loadProfile();
+  </script>
+</body>
+</html>
