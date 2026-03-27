@@ -142,8 +142,8 @@ MASTER_SCHOOL_CODE = os.getenv("MASTER_SCHOOL_CODE", "")
 OTP_EXPIRE_MINUTES = 10
 PASSWORD_RESET_EXPIRE_MINUTES = 15
 ALLOW_DEV_OTP_FALLBACK = os.getenv("ALLOW_DEV_OTP_FALLBACK", "true").lower() == "true"
-LAUNCH_SUPER_ADMIN_EMAIL = os.getenv("LAUNCH_SUPER_ADMIN_EMAIL", "")
-LAUNCH_SUPER_ADMIN_PASSWORD = os.getenv("LAUNCH_SUPER_ADMIN_PASSWORD", "")
+LAUNCH_SUPER_ADMIN_EMAIL = os.getenv("LAUNCH_SUPER_ADMIN_EMAIL", "mfysbw@gmail.com")
+LAUNCH_SUPER_ADMIN_PASSWORD = os.getenv("LAUNCH_SUPER_ADMIN_PASSWORD", "om12OM12")
 pending_email_verifications: Dict[str, Dict[str, Any]] = {}
 
 # ===== Rate Limiting =====
