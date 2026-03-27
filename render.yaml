@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: madrasti-backend
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m uvicorn backend.app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.0
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        value: sqlite:///./madrasti.db
+      - key: CORS_ORIGIN
+        value: "*"
